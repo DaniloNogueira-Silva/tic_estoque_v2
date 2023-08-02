@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  name     String
+  email    String
+  password String
+  is_admin Boolean
+  token    String
+  used     Boolean
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  products Product[]
+}
+
+model Unit_Measure {
+  id           Int    @id @default(autoincrement())
+  unit_measure String
+
+  products Product[]
+}
+
+model Product {
+  id               Int     @id @default(autoincrement())
+  name             String
+  location         String
+  quantity         Int
+  purchase_allowed Boolean
+  origin_city_hall Boolean
+
+  category        Category     @relation(fields: [id_category], references: [id])
+  id_category     Int
+  unit_measure    Unit_Measure @relation(fields: [id_unit_measure], references: [id])
+  id_unit_measure Int
+
+  products Order_Items[]
+}
+
+model Order {
+  id            Int      @id @default(autoincrement())
+  status        String
+  expected_date DateTime
+
+  orders Order_Items[]
+}
+
+model Order_Items {
+  order             Order   @relation(fields: [id_order], references: [id])
+  id_order          Int // relation scalar field (used in the `@relation` attribute above)
+  product           Product @relation(fields: [id_product], references: [id])
+  id_product        Int // relation scalar field (used in the `@relation` attribute above)
+  quantity_in_stock Int
+  new_quantity      Int
+
+  @@id([id_order, id_product])
+}
+
+model Budget {
+  id               Int    @id @default(autoincrement())
+  name             String
+  responsible_name String
+  rg               String
+  cpf              String
+
+  budget_companies Budget_Company[]
+  budget_product   Budget_Product[]
+}
+
+model Budget_Company {
+  id             Int    @id @default(autoincrement())
+  corporate_name String
+  cnpj           String
+  phone          String
+
+  budget    Budget @relation(fields: [id_budget], references: [id])
+  id_budget Int
+}
+
+model Budget_Product {
+  id          Int     @id @default(autoincrement())
+  description String
+  valueA      Int
+  valueB      Int
+  valueC      Int
+  quantity    Int
+  
+  Budget      Budget? @relation(fields: [budgetId], references: [id])
+  budgetId    Int?
+}
