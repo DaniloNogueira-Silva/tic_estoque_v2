@@ -76,8 +76,8 @@ model Budget {
   rg               String
   cpf              String
 
-  budget_companies Budget_Company[]
-  budget_product   Budget_Product[]
+  budget_companies Budget_Company?
+  budget_product   Budget_Product?
 }
 
 model Budget_Company {
@@ -87,7 +87,7 @@ model Budget_Company {
   phone          String
 
   budget    Budget @relation(fields: [id_budget], references: [id])
-  id_budget Int
+  id_budget Int @unique
 }
 
 model Budget_Product {
@@ -98,6 +98,6 @@ model Budget_Product {
   valueC      Int
   quantity    Int
 
-  Budget   Budget? @relation(fields: [budgetId], references: [id])
-  budgetId Int?
+  Budget   Budget @relation(fields: [id_budget], references: [id])
+  id_budget Int @unique
 }
