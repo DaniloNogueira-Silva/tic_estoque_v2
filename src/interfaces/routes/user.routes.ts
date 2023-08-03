@@ -64,6 +64,30 @@ const userRouter = (server: FastifyInstance, options: any, done: () => void) => 
     }
   });
   done();
+
+  server.post('/recoverPassword', async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await userController.recorverPassword(req, reply);
+      reply.status(201).send(`Token enviado`)
+      done();
+    } catch (error) {
+      console.log(error);
+      reply.status(500).send({ error: 'Internal Server Error' });
+    }
+  });
+  done();
+
+  server.post('/changePassword', async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await userController.changePassword(req, reply);
+      reply.status(201).send(`Senha alterada`)
+      done();
+    } catch (error) {
+      console.log(error);
+      reply.status(500).send({ error: 'Internal Server Error' });
+    }
+  });
+  done();
 };
 
 export default userRouter;
