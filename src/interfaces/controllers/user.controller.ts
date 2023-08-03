@@ -108,6 +108,7 @@ export class UserController {
       res.status(200).send({ token: token });
     } catch (error) {
       res.status(500).send("Erro interno no servidor");
+      console.log(error)
     }
   };
 }

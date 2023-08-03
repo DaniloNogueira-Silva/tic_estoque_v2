@@ -16,8 +16,8 @@ model User {
   email    String  @unique
   password String
   is_admin Boolean
-  token    String
-  used     Boolean
+  token    String?
+  used     Boolean?
 }
 
 model Category {
