@@ -11,12 +11,12 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  email     String  @unique
+  email     String    @unique
   password  String
   is_admin  Boolean
-  token     String? 
+  token     String?
   expiresIn DateTime?
   used      Boolean?
 }
@@ -48,27 +48,28 @@ model Product {
   unit_measure    Unit_Measure @relation(fields: [id_unit_measure], references: [id])
   id_unit_measure Int
 
-  products Order_Items[]
+  products Order_item[]
 }
 
 model Order {
-  id            Int      @id @default(autoincrement())
-  status        String
-  expected_date DateTime
+  id Int @id @default(autoincrement())
 
-  orders Order_Items[]
+  order_items Order_item[]
 }
 
-model Order_Items {
-  order             Order   @relation(fields: [id_order], references: [id])
-  id_order          Int // relation scalar field (used in the `@relation` attribute above)
-  product           Product @relation(fields: [id_product], references: [id])
-  id_product        Int // relation scalar field (used in the `@relation` attribute above)
+model Order_item {
+  id                Int      @id @default(autoincrement())
+  status            String
+  expected_date     DateTime
   quantity_in_stock Int
   new_quantity      Int
 
-  @@id([id_order, id_product])
+  order      Order   @relation(fields: [id_order], references: [id])
+  id_order   Int     // relation scalar field (used in the `@relation` attribute above)
+  product    Product @relation(fields: [id_product], references: [id])
+  id_product Int     // relation scalar field (used in the `@relation` attribute above)
 }
+
 
 model Budget {
   id               Int    @id @default(autoincrement())
@@ -77,21 +78,23 @@ model Budget {
   rg               String
   cpf              String
 
-  budget_companies Budget_Company?
-  budget_product   Budget_Product?
+  budget_companies Budget_company?
+  budget_product   Budget_product?
 }
 
-model Budget_Company {
+model Budget_company {
   id             Int    @id @default(autoincrement())
   corporate_name String
   cnpj           String
   phone          String
 
+  budget_products Budget_product?
+
   budget    Budget @relation(fields: [id_budget], references: [id])
-  id_budget Int @unique
+  id_budget Int    @unique
 }
 
-model Budget_Product {
+model Budget_product {
   id          Int    @id @default(autoincrement())
   description String
   valueA      Int
@@ -99,6 +102,8 @@ model Budget_Product {
   valueC      Int
   quantity    Int
 
-  Budget   Budget @relation(fields: [id_budget], references: [id])
-  id_budget Int @unique
+  Budget_company    Budget_company @relation(fields: [id_budget_company], references: [id])
+  id_budget_company Int            @unique
+  Budget            Budget         @relation(fields: [id_budget], references: [id])
+  id_budget         Int            @unique
 }
