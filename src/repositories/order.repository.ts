@@ -2,7 +2,7 @@ import { PrismaClient, Order, Order_item } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export class UserRepository {
+export class OrderRepository {
   async findAll(): Promise<Order[]> {
     return prisma.order.findMany();
   }
@@ -39,7 +39,7 @@ export class UserRepository {
     });
   }
 
-  async updateOrderItem(
+  async updateOrder(
     id: number,
     data: Partial<Order_item>
   ): Promise<Order_item | null> {
