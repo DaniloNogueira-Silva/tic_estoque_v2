@@ -14,14 +14,14 @@ export class ProductRepository {
   }
 
   async create(data: Product): Promise<Product> {
-    const { id_category, id_unit_measure, ...productData } = data;
+    const { categoryId, measureId, ...productData } = data;
 
 
     const product = await prisma.product.create({
       data: {
         ...productData,
-        id_category,
-        id_unit_measure 
+        categoryId,
+        measureId 
       },
     });
 

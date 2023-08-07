@@ -103,7 +103,7 @@ export class UserController {
       }
 
       const token = jwt.sign(
-        { email: user.email, isAdmin: user.is_admin },
+        { email: user.email, isAdmin: user.isAdmin },
         process.env.TOKEN_SECRET
       );
 

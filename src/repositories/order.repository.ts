@@ -82,16 +82,16 @@ export class OrderRepository {
 
   async create_order_item(
     data: Order_item,
-    id_product: number,
-    id_order: number
+    productId: number,
+    orderId: number
   ): Promise<Order_item> {
     const { ...userData } = data;
 
     const order_item = await prisma.order_item.create({
       data: {
         ...userData,
-        id_order,
-        id_product,
+        orderId,
+        productId,
       },
     });
     return order_item;
