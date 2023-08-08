@@ -1,21 +1,25 @@
-import { PrismaClient, Product } from "@prisma/client";
+import { PrismaClient, Product, Category, Unit_Measure } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export class ProductRepository {
   async findAll(): Promise<Product[]> {
-    return prisma.product.findMany();
+    return prisma.product.findMany({
+      include: {
+        category: true,
+        unit_measure: true,
+      },
+    });
   }
 
   async getById(id: number): Promise<Product> {
     return prisma.product.findUnique({
-        where: {id}
+        where: { id }
     });
   }
 
   async create(data: Product): Promise<Product> {
     const { categoryId, measureId, ...productData } = data;
-
 
     const product = await prisma.product.create({
       data: {

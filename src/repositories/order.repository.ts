@@ -69,31 +69,43 @@ export class OrderRepository {
     }
   }
 
-  async create_order(data: Order): Promise<Order> {
-    const { ...userData } = data;
-
-    const order = await prisma.order.create({
-      data: {
-        ...userData,
-      },
-    });
-    return order;
+  async create_order(data: Order, orderItems: Order_item[]): Promise<Order> {
+    try {
+      const order = await prisma.order.create({
+        data: {
+          ...data,
+          order_items: {
+            create: orderItems,
+          },
+        },
+      });
+  
+      return order;
+    } catch (error) {
+      throw new Error(`Failed to create order: ${error.message}`);
+    }
   }
+  
 
   async create_order_item(
-    data: Order_item,
+    quantityInStock: number,
+    newQuantity: number,
+    status: string,
+    expected_date: Date,
     productId: number,
     orderId: number
   ): Promise<Order_item> {
-    const { ...userData } = data;
-
     const order_item = await prisma.order_item.create({
       data: {
-        ...userData,
-        orderId,
+        quantityInStock,
+        newQuantity,
+        status,
+        expected_date,
         productId,
+        orderId,
       },
     });
+
     return order_item;
   }
 }

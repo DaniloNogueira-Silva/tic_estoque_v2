@@ -15,7 +15,7 @@ model User {
   name      String
   email     String    @unique
   password  String
-  isAdmin  Boolean
+  isAdmin   Boolean
   token     String?
   expiresIn DateTime?
   used      Boolean?
@@ -43,10 +43,10 @@ model Product {
   purchase_allowed Boolean
   originCityHall   Boolean
 
-  category         Category     @relation(fields: [categoryId], references: [id])
-  categoryId       Int
-  unit_measure     Unit_Measure @relation(fields: [measureId], references: [id])
-  measureId        Int
+  category     Category     @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  unit_measure Unit_Measure @relation(fields: [measureId], references: [id])
+  measureId    Int
 
   products Order_item[]
 }
@@ -58,18 +58,17 @@ model Order {
 }
 
 model Order_item {
-  id                Int      @id @default(autoincrement())
-  status            String
-  expected_date     DateTime
+  id              Int      @id @default(autoincrement())
+  status          String
+  expected_date   DateTime
   quantityInStock Int
-  newQuantity      Int
+  newQuantity     Int
 
-  order      Order   @relation(fields: [orderId], references: [id])
-  orderId   Int     // relation scalar field (used in the `@relation` attribute above)
-  product    Product @relation(fields: [productId], references: [id])
-  productId Int     // relation scalar field (used in the `@relation` attribute above)
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int // relation scalar field (used in the `@relation` attribute above)
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int // relation scalar field (used in the `@relation` attribute above)
 }
-
 
 model Budget {
   id               Int    @id @default(autoincrement())
@@ -83,27 +82,27 @@ model Budget {
 }
 
 model Budget_company {
-  id             Int    @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   razao_social String
-  cnpj           String
-  telefone          String
+  cnpj         String
+  telefone     String
 
   budget_products Budget_product?
 
-  budget    Budget @relation(fields: [budgetId], references: [id])
+  budget   Budget @relation(fields: [budgetId], references: [id])
   budgetId Int    @unique
 }
 
 model Budget_product {
-  id          Int    @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   descricao String
-  valorA      Int
-  valorB      Int
-  valorC      Int
-  unidade    Int
+  valorA    Int
+  valorB    Int
+  valorC    Int
+  unidade   Int
 
-  Budget_company    Budget_company @relation(fields: [budget_companyId], references: [id])
+  Budget_company   Budget_company @relation(fields: [budget_companyId], references: [id])
   budget_companyId Int            @unique
-  Budget            Budget         @relation(fields: [budgetId], references: [id])
+  Budget           Budget         @relation(fields: [budgetId], references: [id])
   budgetId         Int            @unique
 }
