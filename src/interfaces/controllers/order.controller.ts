@@ -40,38 +40,38 @@ export class OrderController {
       res.status(500).send({ error: "Internal server error" });
     }
   };
-  
 
-  create: RequestHandler = async (req, res) => {
+
+  createOrder: RequestHandler = async (req, res) => {
     try {
-      const { name, order_items }: OrderRequest = req.body;
-  
-      const createdOrder = await this.repository.create_order(name);
-  
+      const orderInterface = req.body as Order;
+      const createdOrder = await this.repository.create_order(orderInterface);
       if (!createdOrder) {
         throw new Error("Não foi possível criar o pedido");
       }
-  
-      for (const orderItemInterface of order_items) {
-        const { productId, quantityInStock, newQuantity, status, expected_date } = orderItemInterface;
-  
-        const product = await this.repositoryProduct.getById(productId);
+
+      res.send({ message: "Pedido criado com sucesso", createdOrder });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ error: error.message });
+    }
+  };
+
+  createOrderItem: RequestHandler = async (req, res) => {
+    try {
+
+      const { order_items } = req.body as { order_items: Order_item[] };
+
+      const createdOrderItems = await Promise.all(order_items.map(async (orderItemData) => {
+        const product = await this.repositoryProduct.getById(orderItemData.productId);
         if (!product) {
-          throw new Error(`Produto com ID ${productId} não encontrado`);
+          throw new Error(`Produto com ID ${orderItemData.productId} não encontrado`);
         }
-  
-        await this.repository.create_order_item(
-          quantityInStock,
-          newQuantity,
-          status,
-          expected_date,
-          productId,
-          createdOrder.id
-        );
-  
-        const updatedProduct = await this.repositoryProduct.update(productId, {
-          id: productId,
-          quantity: newQuantity,
+
+        const createdOrderItem = await this.repository.create_order_item(orderItemData);
+        const updatedProduct = await this.repositoryProduct.update(orderItemData.productId, {
+          id: orderItemData.productId,
+          quantity: orderItemData.newQuantity,
           name: product.name,
           categoryId: product.categoryId,
           measureId: product.measureId,
@@ -79,13 +79,10 @@ export class OrderController {
           originCityHall: product.originCityHall,
           location: product.location,
         });
-      }
-  
-      res.send({ message: "Pedido criado com sucesso", createdOrder });
+        res.send({ message: "Pedido criado com sucesso", createdOrderItem });
+      }));
     } catch (error) {
-      console.log(error);
       res.status(500).send({ error: error.message });
     }
-  };
-  
+  }
 }

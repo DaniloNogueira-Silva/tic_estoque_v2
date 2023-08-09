@@ -22,9 +22,9 @@ const orderRouter = (server: FastifyInstance, options: any, done: () => void) =>
     }
   });
 
-  server.post('/', async (req: FastifyRequest, reply: FastifyReply) => {
+  server.post('/createOrder', async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-      await orderController.create(req, reply);
+      await orderController.createOrder(req, reply);
       reply.status(201).send(`order created`)
       done();
     } catch (error) {
@@ -35,6 +35,18 @@ const orderRouter = (server: FastifyInstance, options: any, done: () => void) =>
 
   done();
 
+  server.post('/createOrderItem', async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await orderController.createOrderItem(req, reply);
+      reply.status(201).send(`order item created`)
+      done();
+    } catch (error) {
+      console.log(error);
+      reply.status(500).send({ error: 'Internal Server Error' });
+    }
+  });
+
+  done();
 };
 
 export default orderRouter;

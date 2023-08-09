@@ -1,4 +1,4 @@
-import { PrismaClient, Order, Order_item } from "@prisma/client";
+import { PrismaClient, Order, Order_item, Product } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -71,39 +71,29 @@ export class OrderRepository {
 
   async create_order(data: Order): Promise<Order> {
     try {
-
-      const { ...OrderData} = data
       const order = await prisma.order.create({
         data: {
-          ...OrderData,
+          ...data,
         },
       });
-
       return order;
     } catch (error) {
       throw new Error(`Failed to create order: ${error.message}`);
     }
   }
 
-  async create_order_item(
-    quantityInStock: number,
-    newQuantity: number,
-    status: string,
-    expected_date: Date,
-    productId: number,
-    orderId: number
-  ): Promise<Order_item> {
-    const order_item = await prisma.order_item.create({
-      data: {
-        quantityInStock,
-        newQuantity,
-        status,
-        expected_date,
-        productId,
-        orderId,
-      },
-    });
-
-    return order_item;
+  async create_order_item(data: Order_item): Promise<Order_item> {
+    try {
+      const orderItem = await prisma.order_item.create({
+        data: {
+          ...data,
+          orderId: data.orderId, // Certifique-se de ajustar isso para o ID correto do pedido
+          productId: data.productId,
+        },
+      });
+      return orderItem;
+    } catch (error) {
+      throw new Error(`Failed to create order item: ${error.message}`);
+    }
   }
 }
