@@ -1,12 +1,27 @@
-import fastify, { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { OrderRepository } from "../../repositories/order.repository";
-import { Order, Order_item, Product } from "@prisma/client";
+import { Order, Order_item } from "@prisma/client";
 import { ProductRepository } from "../../repositories/product.repository";
 
 type MyRequest = FastifyRequest;
 type MyReply = FastifyReply;
 
 type RequestHandler = (req: MyRequest, res: MyReply) => Promise<void>;
+
+interface OrderItem {
+  id: number;
+  status: string;
+  expected_date: Date;
+  quantityInStock: number;
+  newQuantity: number;
+  orderId: number;
+  productId: number;
+}
+
+interface OrderRequest {
+  name: string;
+  order_items: OrderItem[];
+}
 
 export class OrderController {
   repository: OrderRepository;
@@ -25,20 +40,20 @@ export class OrderController {
       res.status(500).send({ error: "Internal server error" });
     }
   };
+  
 
   create: RequestHandler = async (req, res) => {
     try {
-      const orderInterface: Order = req.body as Order;
-      const orderItemsInterface: Order_item[] = req.body as Order_item[];
+      const { name, order_items }: OrderRequest = req.body;
   
-      const createdOrder = await this.repository.create_order(orderInterface, orderItemsInterface);
+      const createdOrder = await this.repository.create_order(name);
   
       if (!createdOrder) {
         throw new Error("Não foi possível criar o pedido");
       }
   
-      for (const orderItemInterface of orderItemsInterface) {
-        const { productId, quantityInStock, newQuantity } = orderItemInterface;
+      for (const orderItemInterface of order_items) {
+        const { productId, quantityInStock, newQuantity, status, expected_date } = orderItemInterface;
   
         const product = await this.repositoryProduct.getById(productId);
         if (!product) {
@@ -48,8 +63,8 @@ export class OrderController {
         await this.repository.create_order_item(
           quantityInStock,
           newQuantity,
-          orderItemInterface.status,
-          orderItemInterface.expected_date,
+          status,
+          expected_date,
           productId,
           createdOrder.id
         );
@@ -62,16 +77,13 @@ export class OrderController {
           measureId: product.measureId,
           purchase_allowed: product.purchase_allowed,
           originCityHall: product.originCityHall,
-          location: product.location
+          location: product.location,
         });
-  
-        if (!updatedProduct) {
-          throw new Error(`Não foi possível atualizar a quantidade do produto com ID ${productId}`);
-        }
       }
   
-      res.send({ message: "Pedido criado com sucesso", order: createdOrder });
+      res.send({ message: "Pedido criado com sucesso", createdOrder });
     } catch (error) {
+      console.log(error);
       res.status(500).send({ error: error.message });
     }
   };

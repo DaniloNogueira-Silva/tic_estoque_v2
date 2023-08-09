@@ -52,8 +52,8 @@ model Product {
 }
 
 model Order {
-  id Int @id @default(autoincrement())
-
+  id          Int          @id @default(autoincrement())
+  name        String
   order_items Order_item[]
 }
 

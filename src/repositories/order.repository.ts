@@ -33,7 +33,7 @@ export class OrderRepository {
     });
   }
 
-  async getIdOrderItems(id: number): Promise<Order[]> {
+  async getIdOrderItems(id: number): Promise<Order_item[]> {
     return prisma.order_item.findMany({
       where: { id },
     });
@@ -69,23 +69,21 @@ export class OrderRepository {
     }
   }
 
-  async create_order(data: Order, orderItems: Order_item[]): Promise<Order> {
+  async create_order(data: Order): Promise<Order> {
     try {
+
+      const { ...OrderData} = data
       const order = await prisma.order.create({
         data: {
-          ...data,
-          order_items: {
-            create: orderItems,
-          },
+          ...OrderData,
         },
       });
-  
+
       return order;
     } catch (error) {
       throw new Error(`Failed to create order: ${error.message}`);
     }
   }
-  
 
   async create_order_item(
     quantityInStock: number,
