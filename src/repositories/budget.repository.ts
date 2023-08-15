@@ -7,7 +7,7 @@ import {
 
 const prisma = new PrismaClient();
 
-export class UserRepository {
+export class BudgetRepository {
   async findAll(): Promise<Budget[]> {
     return prisma.budget.findMany();
   }
@@ -60,6 +60,7 @@ export class UserRepository {
     const budget = await prisma.budget_company.create({
       data: {
         ...userData,
+        budgetId: data.budgetId
       },
     });
     return budget;
@@ -71,6 +72,8 @@ export class UserRepository {
     const budget = await prisma.budget_product.create({
       data: {
         ...userData,
+        budgetId: data.budgetId,
+        budget_companyId: data.budget_companyId
       },
     });
     return budget;
