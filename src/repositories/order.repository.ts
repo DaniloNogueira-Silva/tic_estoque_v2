@@ -87,7 +87,7 @@ export class OrderRepository {
       const orderItem = await prisma.order_item.create({
         data: {
           ...data,
-          orderId: data.orderId, // Certifique-se de ajustar isso para o ID correto do pedido
+          orderId: data.orderId, 
           productId: data.productId,
         },
       });

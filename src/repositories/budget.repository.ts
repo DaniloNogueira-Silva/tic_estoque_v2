@@ -25,7 +25,7 @@ export class BudgetRepository {
           budget_product: true,
         },
       });
-
+      
       return budget;
     } catch (error) {
       console.log(error)
@@ -33,33 +33,37 @@ export class BudgetRepository {
     }
   }
 
-  async findCompanies(): Promise<Budget_company[]>{
-    return prisma.budget_company.findMany()
+  async findCompaniesByBudgetId(budgetId: number): Promise<Budget_company[]> {
+    return prisma.budget_company.findMany({
+      where: {
+        budgetId: budgetId,
+      },
+    });
   }
 
-  async getById(id: number): Promise<Budget[]>{
-    return prisma.budget.findMany({
-        where: {id}
-    })
+  async findProductsByBudgetId(budgetId: number): Promise<Budget_product[]> {
+    return prisma.budget_product.findMany({
+      where: {
+        budgetId: budgetId,
+      },
+    });
   }
 
   async create_budget(data: Budget): Promise<Budget> {
-    const { ...userData } = data;
-
+   
     const budget = await prisma.budget.create({
       data: {
-        ...userData,
+        ...data,
       },
     });
     return budget;
   }
 
   async create_budget_company(data: Budget_company): Promise<Budget_company> {
-    const { ...userData } = data;
-
+    
     const budget = await prisma.budget_company.create({
       data: {
-        ...userData,
+        ...data,
         budgetId: data.budgetId
       },
     });
@@ -67,11 +71,10 @@ export class BudgetRepository {
   }
 
   async create_budget_product(data: Budget_product): Promise<Budget_product> {
-    const { ...userData } = data;
-
+    
     const budget = await prisma.budget_product.create({
       data: {
-        ...userData,
+        ...data,
         budgetId: data.budgetId,
         budget_companyId: data.budget_companyId
       },

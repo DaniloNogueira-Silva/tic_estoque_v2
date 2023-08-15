@@ -71,14 +71,15 @@ model Order_item {
 }
 
 model Budget {
-  id               Int    @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   name             String
   responsible_name String
   rg               String
   cpf              String
+  createdAt        DateTime @default(now())
 
-  budget_companies Budget_company?
-  budget_product   Budget_product?
+  budget_companies Budget_company[]
+  budget_product   Budget_product[]
 }
 
 model Budget_company {
@@ -90,7 +91,7 @@ model Budget_company {
   budget_products Budget_product?
 
   budget   Budget @relation(fields: [budgetId], references: [id])
-  budgetId Int    @unique
+  budgetId Int
 }
 
 model Budget_product {
@@ -104,5 +105,5 @@ model Budget_product {
   Budget_company   Budget_company @relation(fields: [budget_companyId], references: [id])
   budget_companyId Int            @unique
   Budget           Budget         @relation(fields: [budgetId], references: [id])
-  budgetId         Int            @unique
+  budgetId         Int
 }
