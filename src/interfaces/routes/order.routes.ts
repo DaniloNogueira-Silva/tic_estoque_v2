@@ -66,6 +66,20 @@ const orderRouter = (
   );
 
   done();
+
+  server.post<{ Params: { id: string } }>(
+    "/print_order/:id",
+    async (req: FastifyRequest, reply: FastifyReply) => {
+      try {
+        await orderController.print_order(req, reply);
+        reply.status(201).send(`pdf created`);
+        done();
+      } catch (error) {
+        console.log(error);
+        reply.status(500).send({ error: "Não foi possível criar o item do pedido" });
+      }
+    }
+  );
 };
 
 export default orderRouter;

@@ -8,14 +8,16 @@ export class OrderRepository {
   }
 
 
-async latest(): Promise<Order[]> {
-  return prisma.order.findMany({
-    orderBy: {
-      "created_at": "desc"
-    },
-    take: 10
-  });
-}
+  async latest(): Promise<Order[]> {
+    const latestOrders = await prisma.order.findMany({
+      take: 10, 
+      orderBy: {
+        id: 'desc'
+      }
+    });
+  
+    return latestOrders;
+  }
 
 
   async orderDetails(id: number): Promise<Order | null> {
@@ -41,6 +43,14 @@ async latest(): Promise<Order[]> {
   async getId(id: number): Promise<Order[]> {
     return prisma.order.findMany({
       where: { id },
+    });
+  }
+
+  async findItemsByOrderId(orderId: number): Promise<Order_item[]> {
+    return prisma.order_item.findMany({
+      where: {
+        orderId: orderId,
+      },
     });
   }
 
@@ -99,7 +109,7 @@ async latest(): Promise<Order[]> {
       const orderItem = await prisma.order_item.create({
         data: {
           ...data,
-          orderId: data.orderId, 
+          orderId: data.orderId,
           productId: data.productId,
         },
       });

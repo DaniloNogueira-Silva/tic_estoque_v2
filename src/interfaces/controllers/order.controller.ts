@@ -1,7 +1,8 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { OrderRepository } from "../../repositories/order.repository";
-import { Order, Order_item } from "@prisma/client";
+import { Order, Order_item, Product } from "@prisma/client";
 import { ProductRepository } from "../../repositories/product.repository";
+import pdf from "html-pdf"
 
 type MyRequest = FastifyRequest;
 type MyReply = FastifyReply;
@@ -50,7 +51,106 @@ export class OrderController {
     }
   };
 
+  print_order: RequestHandler = async (req, res) => {
+    try {
+      const id: number = parseInt((req.params as { id: string }).id);
+      const order: Order = await this.repository.orderDetails(id);
 
+
+      if (order) {
+        const dataBudget = {
+          name: order.name,
+          created_at: order.created_at
+        };
+
+
+        const data = dataBudget.created_at
+        const date = new Date(data);
+        const formattedDate = new Intl.DateTimeFormat("pt-BR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }).format(date);
+
+        let texto = `
+            <p style="margin-right: 0px"> </p>
+            <h4 style="color: gray; text-align: center; margin-top: 50px "> NV SOCIEDADE SOLIDÁRIA </h4>
+            <p style="color: gray; text-align: center "> Gestora do CCI Nossa Senhora da Conceição </p>
+            <p style="color: gray; text-align: center "> CNPJ n. 05.166.687/0002-34 </p>
+            <p style="font-weight: bold; text-align: center ">CONSOLIDAÇÃO DE PESQUISAS DE PREÇOS</p>
+
+            <p  style=" margin-left: 50px ">ORGÃO CONCESSOR: Prefeitura Municipal de Franca </p>
+            <p  style=" margin-left: 50px ">ENTIDADE CONVENIADA: NV Sociedade Solidária (CCI Municipal Nossa senhora da Conceição)</p>
+            <p  style=" margin-left: 50px ">EXERCÍCIO: 2023</p>
+            <table style="border-collapse: collapse; width: 90%; margin-left: auto; margin-right: auto ">
+              <tr>
+                <th colspan="2" style="border: 1px solid black; padding: 8px; text-align: center;"
+                  >I – IDENTIFICAÇÃO DOS PROPONENTES (Fornecedores de Produtos)
+                </th>
+                
+              </tr>
+          `;
+
+
+        const orderItems: OrderItem[] = await this.repository.findItemsByOrderId(order.id);
+
+
+        orderItems.forEach((orderItem, index) => {
+          const dataOrderItem = {
+            status: orderItem.status,
+            expected_date: orderItem.expected_date,
+            quantityInStock: orderItem.quantityInStock,
+            newQuantity: orderItem.newQuantity,
+            orderId: orderItem.orderId,
+            productId: orderItem.productId
+          };
+          ;
+
+          // const productName = await this.repositoryProduct.getById(dataOrderItem.productId)
+
+          const data = dataOrderItem.expected_date
+          const date = new Date(data);
+          const formattedDate = new Intl.DateTimeFormat("pt-BR", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }).format(date);
+
+          texto +=
+            `
+              <tr>
+                <td style="border: 1px solid black; padding: 8px; text-align: left;">
+                  Data esperada de entrega: ${formattedDate}<br> status: ${dataOrderItem.status}<br> Quantidade em estoque: ${dataOrderItem.quantityInStock}<br> Nova quantidade: ${dataOrderItem.newQuantity} <br> 
+                </td>
+              </tr> 
+          `
+        });
+
+
+
+        texto +=
+          ` 
+          </table>
+          <p style="border: 1px solid black; width: 90%; text-align: center; margin-left: auto; margin-right: auto;"> IV- AUTENTICAÇÃO </p>
+          <p style="margin-left: 50px ; "> Local e Data: Franca, de ${formattedDate} </p>
+          <p style="margin-left: 50px ; "> Assinatura: ______________________________________________________________________ </p>
+        `
+
+        pdf
+          .create(texto, {})
+          .toFile(`pdfs/${order.name}.pdf`, (err) => {
+            if (err) {
+              res.status(500).send("Erro ao fazer o pdf");
+            } else {
+              res.status(200).send("PDF criado");
+            }
+          });
+      };
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  }
 
   createOrder: RequestHandler = async (req, res) => {
     try {
