@@ -16,7 +16,7 @@ const productRouter = (server: FastifyInstance, options: any, done: () => void) 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível recuperar os produtos' });
     }
   });
 
@@ -27,7 +27,7 @@ const productRouter = (server: FastifyInstance, options: any, done: () => void) 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível criar o produto' });
     }
   });
 
@@ -38,7 +38,7 @@ const productRouter = (server: FastifyInstance, options: any, done: () => void) 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível atualizar o produto' });
     }
   });
 
@@ -49,7 +49,7 @@ const productRouter = (server: FastifyInstance, options: any, done: () => void) 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível deletar o produto' });
     }
   });
 

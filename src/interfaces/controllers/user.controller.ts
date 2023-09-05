@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto"
 import nodemailer from 'nodemailer';
+import { apiErrorResponse } from "lib-api-error";
 
 type MyRequest = FastifyRequest;
 type MyReply = FastifyReply;
@@ -91,14 +92,16 @@ export class UserController {
       const user = await this.repository.login(email);
 
       if (!user) {
-        res.status(404).send("Usuário não encontrado");
+        res.status(404).send(apiErrorResponse('UNAUTHORIZED'));
         return;
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
-        res.status(406).send("Credenciais incorretas");
+
+        const response = apiErrorResponse('UNAUTHORIZED')
+        res.status(response.code).send(apiErrorResponse);
         return;
       }
 

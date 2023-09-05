@@ -16,7 +16,7 @@ const userRouter = (server: FastifyInstance, options: any, done: () => void) => 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível recuperar o usuario' });
     }
   });
 
@@ -27,7 +27,7 @@ const userRouter = (server: FastifyInstance, options: any, done: () => void) => 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível criar o usuario' });
     }
   });
 
@@ -38,7 +38,7 @@ const userRouter = (server: FastifyInstance, options: any, done: () => void) => 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível atualizar o usuario' });
     }
   });
 
@@ -49,7 +49,7 @@ const userRouter = (server: FastifyInstance, options: any, done: () => void) => 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível deletar o usuario' });
     }
   });
 
@@ -60,7 +60,7 @@ const userRouter = (server: FastifyInstance, options: any, done: () => void) => 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível fazer login' });
     }
   });
   done();
@@ -72,7 +72,7 @@ const userRouter = (server: FastifyInstance, options: any, done: () => void) => 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível recuperar a senha do usuario' });
     }
   });
   done();
@@ -84,7 +84,7 @@ const userRouter = (server: FastifyInstance, options: any, done: () => void) => 
       done();
     } catch (error) {
       console.log(error);
-      reply.status(500).send({ error: 'Internal Server Error' });
+      reply.status(500).send({ error: 'Não foi possível trocar a senha do usuario' });
     }
   });
   done();

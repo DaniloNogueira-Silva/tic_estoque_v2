@@ -41,6 +41,16 @@ export class OrderController {
     }
   };
 
+  latest: RequestHandler = async (req, res) => {
+    try {
+      const orders: Order[] = await this.repository.latest();
+      res.send(orders);
+    } catch (error) {
+      res.status(500).send({ error: "Erro ao acessar o repositório latest" });
+    }
+  };
+
+
 
   createOrder: RequestHandler = async (req, res) => {
     try {

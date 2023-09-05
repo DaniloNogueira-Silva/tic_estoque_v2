@@ -7,6 +7,17 @@ export class OrderRepository {
     return prisma.order.findMany();
   }
 
+
+async latest(): Promise<Order[]> {
+  return prisma.order.findMany({
+    orderBy: {
+      "created_at": "desc"
+    },
+    take: 10
+  });
+}
+
+
   async orderDetails(id: number): Promise<Order | null> {
     if (isNaN(id)) {
       throw new Error("Invalid ID provided");
@@ -71,9 +82,10 @@ export class OrderRepository {
 
   async create_order(data: Order): Promise<Order> {
     try {
+
       const order = await prisma.order.create({
         data: {
-          ...data,
+          ...data
         },
       });
       return order;
