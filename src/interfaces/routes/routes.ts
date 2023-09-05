@@ -4,6 +4,7 @@ import categoryRouter from './category.routes';
 import measureRouter from './measure.routes';
 import productRouter from './product.routes';
 import orderRouter from './order.routes';
+import budgetRouter from './budget.routes';
 import fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 
@@ -16,7 +17,7 @@ const routes = (server: FastifyInstance): void => {
   server.register(measureRouter, { prefix: '/admin/measure' });
   server.register(productRouter, { prefix: '/admin/product' });
   server.register(orderRouter, { prefix: '/admin/order' });
-
+  server.register(budgetRouter, { prefix: '/admin/budget' });
 };
 
 export default routes
