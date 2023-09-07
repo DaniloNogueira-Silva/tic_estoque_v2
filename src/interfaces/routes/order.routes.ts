@@ -68,6 +68,20 @@ const orderRouter = (
   done();
 
   server.post<{ Params: { id: string } }>(
+    "/updadeProduct/:id",
+    async (req: FastifyRequest, reply: FastifyReply) => {
+      try {
+        await orderController.updateProductIfArrived(req, reply);
+        reply.status(201).send(`product update`);
+        done();
+      } catch (error) {
+        console.log(error);
+        reply.status(500).send({ error: "Não foi possível atualizar o produto do pedido" });
+      }
+    }
+  );
+
+  server.post<{ Params: { id: string } }>(
     "/print_order/:id",
     async (req: FastifyRequest, reply: FastifyReply) => {
       try {

@@ -175,7 +175,7 @@ export class OrderController {
     try {
       const { order_items } = req.body as { order_items: Order_item[] };
 
-      const createdOrderItems = await Promise.all(
+      const updatedOrderItems = await Promise.all(
         order_items.map(async (orderItemData) => {
           const product = await this.repositoryProduct.getById(
             orderItemData.productId
@@ -186,7 +186,7 @@ export class OrderController {
             );
           }
 
-          const createdOrderItem = await this.repository.create_order_item(
+          const updatedOrderItem = await this.repository.create_order_item(
             orderItemData
           );
           if (orderItemData.status == "chegou") {
@@ -202,7 +202,7 @@ export class OrderController {
               location: product.location,
             });
           } else {
-            const updatedProduct = await this.repositoryProduct.update(
+            await this.repositoryProduct.update(
               orderItemData.productId,
               {
                 id: orderItemData.productId,
@@ -216,7 +216,54 @@ export class OrderController {
               }
             );
           }
-          res.send({ message: "Pedido criado com sucesso", createdOrderItem });
+          res.send({ message: "Pedido criado com sucesso", updatedOrderItem });
+        })
+      );
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  };
+
+  updateProductIfArrived: RequestHandler = async (req, res) => {
+    try {
+      const { order_items } = req.body as { order_items: Order_item[] };
+      const params = req.params as { id: string };
+
+      if (typeof params.id !== "string") {
+        res.status(400).send({ error: "Invalid id" });
+        return;
+      }
+
+      const orderItemId = Number(params.id);
+      const updatedOrderItems = await Promise.all(
+        order_items.map(async (orderItemData) => {
+          const product = await this.repositoryProduct.getById(
+            orderItemData.productId
+          );
+          if (!product) {
+            throw new Error(
+              `Produto com ID ${orderItemData.productId} não encontrado`
+            );
+          }
+          
+          console.log(orderItemId)
+          const updatedOrderItem = await this.repository.updateOrder(orderItemId, {
+            status: orderItemData.status,
+          });
+          if (orderItemData.status == "chegou") {
+            await this.repositoryProduct.update(orderItemData.productId, {
+              id: orderItemData.productId,
+              quantity:
+                orderItemData.quantityInStock + orderItemData.newQuantity,
+              name: product.name,
+              categoryId: product.categoryId,
+              measureId: product.measureId,
+              purchase_allowed: product.purchase_allowed,
+              originCityHall: product.originCityHall,
+              location: product.location,
+            });
+          }
+          res.send({ message: "Pedido atualizado com sucesso", updatedOrderItem });
         })
       );
     } catch (error) {
