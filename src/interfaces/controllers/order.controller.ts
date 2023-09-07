@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { OrderRepository } from "../../repositories/order.repository";
 import { Order, Order_item, Product } from "@prisma/client";
 import { ProductRepository } from "../../repositories/product.repository";
-import pdf from "html-pdf"
+import pdf from "html-pdf";
 
 type MyRequest = FastifyRequest;
 type MyReply = FastifyReply;
@@ -28,7 +28,10 @@ export class OrderController {
   repository: OrderRepository;
   repositoryProduct: ProductRepository;
 
-  constructor(repository: OrderRepository, repositoryProduct: ProductRepository) {
+  constructor(
+    repository: OrderRepository,
+    repositoryProduct: ProductRepository
+  ) {
     this.repository = repository;
     this.repositoryProduct = repositoryProduct;
   }
@@ -56,15 +59,13 @@ export class OrderController {
       const id: number = parseInt((req.params as { id: string }).id);
       const order: Order = await this.repository.orderDetails(id);
 
-
       if (order) {
         const dataBudget = {
           name: order.name,
-          created_at: order.created_at
+          created_at: order.created_at,
         };
 
-
-        const data = dataBudget.created_at
+        const data = dataBudget.created_at;
         const date = new Date(data);
         const formattedDate = new Intl.DateTimeFormat("pt-BR", {
           day: "numeric",
@@ -91,9 +92,8 @@ export class OrderController {
               </tr>
           `;
 
-
-        const orderItems: OrderItem[] = await this.repository.findItemsByOrderId(order.id);
-
+        const orderItems: OrderItem[] =
+          await this.repository.findItemsByOrderId(order.id);
 
         orderItems.forEach((orderItem, index) => {
           const dataOrderItem = {
@@ -102,13 +102,22 @@ export class OrderController {
             quantityInStock: orderItem.quantityInStock,
             newQuantity: orderItem.newQuantity,
             orderId: orderItem.orderId,
-            productId: orderItem.productId
+            productId: orderItem.productId,
           };
-          ;
 
-          // const productName = await this.repositoryProduct.getById(dataOrderItem.productId)
+          async function getName() {
+            try {
+              const data = await this.repositoryProduct.getById(dataOrderItem.productId);
+              return data.name;
+            } catch (error) {
+              console.error(error);
+              return "Nome do produto não encontrado";
+            }
+          }
 
-          const data = dataOrderItem.expected_date
+          const productName = getName();
+
+          const data = dataOrderItem.expected_date;
           const date = new Date(data);
           const formattedDate = new Intl.DateTimeFormat("pt-BR", {
             day: "numeric",
@@ -116,41 +125,36 @@ export class OrderController {
             year: "numeric",
           }).format(date);
 
-          texto +=
-            `
+          texto += `
               <tr>
                 <td style="border: 1px solid black; padding: 8px; text-align: left;">
-                  Data esperada de entrega: ${formattedDate}<br> status: ${dataOrderItem.status}<br> Quantidade em estoque: ${dataOrderItem.quantityInStock}<br> Nova quantidade: ${dataOrderItem.newQuantity} <br> 
+                  Data esperada de entrega: ${formattedDate}<br> status: ${dataOrderItem.status}<br> Quantidade em estoque: ${dataOrderItem.quantityInStock}<br> Quantidade a ser pedida: ${dataOrderItem.newQuantity} <br> 
+                  Nome do produto: ${productName}
                 </td>
               </tr> 
-          `
+          `;
         });
 
-
-
-        texto +=
-          ` 
+        texto += ` 
           </table>
           <p style="border: 1px solid black; width: 90%; text-align: center; margin-left: auto; margin-right: auto;"> IV- AUTENTICAÇÃO </p>
           <p style="margin-left: 50px ; "> Local e Data: Franca, de ${formattedDate} </p>
           <p style="margin-left: 50px ; "> Assinatura: ______________________________________________________________________ </p>
-        `
+        `;
 
-        pdf
-          .create(texto, {})
-          .toFile(`pdfs/${order.name}.pdf`, (err) => {
-            if (err) {
-              res.status(500).send("Erro ao fazer o pdf");
-            } else {
-              res.status(200).send("PDF criado");
-            }
-          });
-      };
+        pdf.create(texto, {}).toFile(`pdfs/${order.name}.pdf`, (err) => {
+          if (err) {
+            res.status(500).send("Erro ao fazer o pdf");
+          } else {
+            res.status(200).send("PDF criado");
+          }
+        });
+      }
     } catch (error) {
       console.log(error);
       res.status(500).send(error);
     }
-  }
+  };
 
   createOrder: RequestHandler = async (req, res) => {
     try {
@@ -169,30 +173,54 @@ export class OrderController {
 
   createOrderItem: RequestHandler = async (req, res) => {
     try {
-
       const { order_items } = req.body as { order_items: Order_item[] };
 
-      const createdOrderItems = await Promise.all(order_items.map(async (orderItemData) => {
-        const product = await this.repositoryProduct.getById(orderItemData.productId);
-        if (!product) {
-          throw new Error(`Produto com ID ${orderItemData.productId} não encontrado`);
-        }
+      const createdOrderItems = await Promise.all(
+        order_items.map(async (orderItemData) => {
+          const product = await this.repositoryProduct.getById(
+            orderItemData.productId
+          );
+          if (!product) {
+            throw new Error(
+              `Produto com ID ${orderItemData.productId} não encontrado`
+            );
+          }
 
-        const createdOrderItem = await this.repository.create_order_item(orderItemData);
-        const updatedProduct = await this.repositoryProduct.update(orderItemData.productId, {
-          id: orderItemData.productId,
-          quantity: orderItemData.newQuantity,
-          name: product.name,
-          categoryId: product.categoryId,
-          measureId: product.measureId,
-          purchase_allowed: product.purchase_allowed,
-          originCityHall: product.originCityHall,
-          location: product.location,
-        });
-        res.send({ message: "Pedido criado com sucesso", createdOrderItem });
-      }));
+          const createdOrderItem = await this.repository.create_order_item(
+            orderItemData
+          );
+          if (orderItemData.status == "chegou") {
+            await this.repositoryProduct.update(orderItemData.productId, {
+              id: orderItemData.productId,
+              quantity:
+                orderItemData.quantityInStock + orderItemData.newQuantity,
+              name: product.name,
+              categoryId: product.categoryId,
+              measureId: product.measureId,
+              purchase_allowed: product.purchase_allowed,
+              originCityHall: product.originCityHall,
+              location: product.location,
+            });
+          } else {
+            const updatedProduct = await this.repositoryProduct.update(
+              orderItemData.productId,
+              {
+                id: orderItemData.productId,
+                quantity: orderItemData.quantityInStock,
+                name: product.name,
+                categoryId: product.categoryId,
+                measureId: product.measureId,
+                purchase_allowed: product.purchase_allowed,
+                originCityHall: product.originCityHall,
+                location: product.location,
+              }
+            );
+          }
+          res.send({ message: "Pedido criado com sucesso", createdOrderItem });
+        })
+      );
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
-  }
+  };
 }
