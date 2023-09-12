@@ -60,12 +60,12 @@ export class OrderController {
       const order: Order = await this.repository.orderDetails(id);
 
       if (order) {
-        const dataBudget = {
+        const dataOrder = {
           name: order.name,
           created_at: order.created_at,
         };
 
-        const data = dataBudget.created_at;
+        const data = dataOrder.created_at;
         const date = new Date(data);
         const formattedDate = new Intl.DateTimeFormat("pt-BR", {
           day: "numeric",
