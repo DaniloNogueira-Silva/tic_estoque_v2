@@ -13,7 +13,7 @@ export class ProductRepository {
   }
 
   async getById(id: number): Promise<Product> {
-    return prisma.product.findUnique({
+    return prisma.product.findFirstOrThrow({
         where: { id }
     });
   }

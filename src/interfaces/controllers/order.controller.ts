@@ -173,12 +173,12 @@ export class OrderController {
 
   createOrderItem: RequestHandler = async (req, res) => {
     try {
-      
+
       const { order_items } = req.body as { order_items: Order_item[] };
 
       const updatedOrderItems = await Promise.all(
         order_items.map(async (orderItemData) => {
-          
+
           const product = await this.repositoryProduct.getById(
             orderItemData.productId
           );
@@ -187,47 +187,25 @@ export class OrderController {
               `Produto com ID ${orderItemData.productId} não encontrado`
             );
           }
-          
-          const expectedDate = new Date(orderItemData.expected_date);
 
-          const updatedOrderItem = await this.repository.create_order_item({
-            id: orderItemData.id,
-            status: orderItemData.status,
-            expected_date: expectedDate,
-            quantityInStock: orderItemData.quantityInStock,
-            newQuantity: orderItemData.newQuantity,
-            orderId: orderItemData.orderId,
-            productId: orderItemData.productId
-          }
-            
-          )
-          if (orderItemData.status == "chegou") {
-            await this.repositoryProduct.update(orderItemData.productId, {
+          // const expectedDate = new Date(orderItemData.expected_date);
+
+          const updatedOrderItem = await this.repository.create_order_item(orderItemData)
+
+          await this.repositoryProduct.update(
+            orderItemData.productId,
+            {
               id: orderItemData.productId,
-              quantity:
-                orderItemData.quantityInStock + orderItemData.newQuantity,
+              quantity: orderItemData.quantityInStock,
               name: product.name,
               categoryId: product.categoryId,
               measureId: product.measureId,
               purchase_allowed: product.purchase_allowed,
               originCityHall: product.originCityHall,
               location: product.location,
-            });
-          } else {
-            await this.repositoryProduct.update(
-              orderItemData.productId,
-              {
-                id: orderItemData.productId,
-                quantity: orderItemData.quantityInStock,
-                name: product.name,
-                categoryId: product.categoryId,
-                measureId: product.measureId,
-                purchase_allowed: product.purchase_allowed,
-                originCityHall: product.originCityHall,
-                location: product.location,
-              }
-            );
-          }
+            }
+          );
+
           res.send({ message: "Pedido criado com sucesso", updatedOrderItem });
         })
       );
@@ -257,7 +235,7 @@ export class OrderController {
               `Produto com ID ${orderItemData.productId} não encontrado`
             );
           }
-          
+
           console.log(orderItemId)
           const updatedOrderItem = await this.repository.updateOrder(orderItemId, {
             status: orderItemData.status,
