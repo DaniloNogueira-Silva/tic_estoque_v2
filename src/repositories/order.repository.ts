@@ -19,6 +19,21 @@ export class OrderRepository {
     return latestOrders;
   }
 
+  async orderWithItems(): Promise<Order[]> {
+    try {
+      const ordersWithItems = await prisma.order.findMany({
+        include: {
+          order_items: true,
+        },
+      });
+
+      return ordersWithItems
+    } catch (error) {
+      console.log(error);
+      throw new Error("Failed to fetch orders with items");
+    }
+  }
+  
 
   async orderDetails(id: number): Promise<Order | null> {
     if (isNaN(id)) {

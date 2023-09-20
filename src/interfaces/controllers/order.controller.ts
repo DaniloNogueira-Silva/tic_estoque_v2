@@ -45,6 +45,14 @@ export class OrderController {
     }
   };
 
+  orderWithItems: RequestHandler = async (req,res) => {
+    try {
+      res.send(( await this.repository.orderWithItems() ))
+    } catch (error) {
+      res.status(500).send({ error: "Internal server error" });
+    }
+  }
+
   latest: RequestHandler = async (req, res) => {
     try {
       const orders: Order[] = await this.repository.latest();
@@ -201,19 +209,6 @@ export class OrderController {
           }
             
           )
-          if (orderItemData.status == "chegou") {
-            await this.repositoryProduct.update(orderItemData.productId, {
-              id: orderItemData.productId,
-              quantity:
-                orderItemData.quantityInStock + orderItemData.newQuantity,
-              name: product.name,
-              categoryId: product.categoryId,
-              measureId: product.measureId,
-              purchase_allowed: product.purchase_allowed,
-              originCityHall: product.originCityHall,
-              location: product.location,
-            });
-          } else {
             await this.repositoryProduct.update(
               orderItemData.productId,
               {
@@ -227,7 +222,6 @@ export class OrderController {
                 location: product.location,
               }
             );
-          }
           res.send({ message: "Pedido criado com sucesso", updatedOrderItem });
         })
       );
