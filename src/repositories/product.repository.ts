@@ -14,7 +14,7 @@ export class ProductRepository {
 
   async getById(id: number): Promise<Product> {
     return prisma.product.findFirstOrThrow({
-        where: { id }
+      where: { id },
     });
   }
 
@@ -25,7 +25,7 @@ export class ProductRepository {
       data: {
         ...productData,
         categoryId,
-        measureId 
+        measureId,
       },
     });
 
@@ -33,36 +33,46 @@ export class ProductRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    
     try {
       const findOrderItem = await prisma.order_item.findMany({
-        where: { productId: id}
-      })
+        where: { productId: id },
+      });
 
-      if(!findOrderItem){
+      if (!findOrderItem) {
         const deleteResult = await prisma.product.delete({
           where: { id },
         });
-  
-        console.log('Produto deletado com sucesso')
+
+        console.log("Produto deletado com sucesso");
         return deleteResult !== null;
-      }else {
-        console.log('O produto está vinculado a um ou mais pedidos')
+      } else {
+        console.log("O produto está vinculado a um ou mais pedidos");
       }
-        
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
   async update(id: number, data: Product): Promise<Product | null> {
-    const product = await prisma.product.update({
-      where: { id },
-      data,
+    const findOrderItem = await prisma.order_item.findMany({
+      where: { productId: id },
     });
-    if (!product) {
-      return null;
+
+    if (!findOrderItem) {
+      const product = await prisma.product.update({
+        where: { id },
+        data,
+      });
+      if (!product) {
+        return null;
+      }
+
+      return product;
+    } else {
+      console.log("O produto está vinculado a um ou mais pedidos");
     }
-    return product;
+  }
+  catch(error) {
+    throw error;
   }
 }

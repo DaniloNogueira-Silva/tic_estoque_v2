@@ -29,73 +29,82 @@ export class ProductController {
   create: RequestHandler = async (req, res) => {
     try {
       const productInterface = req.body as Product;
-  
+
       if (!productInterface) {
         res.status(400).send({ error: "Invalid product data" });
         return;
       }
-  
+
       const product: Product = await this.repository.create(productInterface);
       res.send(product);
     } catch (error) {
       res.status(500).send({ error });
     }
   };
-  
+
   update: RequestHandler = async (req, res) => {
-    try {
-      const productInterface = req.body as Product;
-  
-      if (!productInterface) {
-        res.status(400).send({ error: "Invalid product data" });
-        return;
-      }
-  
-      const params = req.params as { id: string };
-  
-      if (typeof params.id !== "string") {
-        res.status(400).send({ error: "Invalid id" });
-        return;
-      }
-  
-      const productId = Number(params.id);
-      const product: Product | null = await this.repository.update(productId, productInterface);
-  
-      if (!product) {
-        res.status(404).send({ error: "Product not found" });
-        return;
-      }
-  
-      res.send(product);
-    } catch (error) {
-      res.status(500).send({ error: "Internal server error" });
+    const productInterface = req.body as Product;
+
+    if (!productInterface) {
+      res.status(400).send({ error: "Invalid product data" });
+      return;
     }
+
+    const params = req.params as { id: string };
+
+    if (typeof params.id !== "string") {
+      res.status(400).send({ error: "Invalid id" });
+      return;
+    }
+
+    const productId = Number(params.id);
+    const product: Product | null = await this.repository.update(
+      productId,
+      productInterface
+    );
+
+    const findOrderItem = await this.repository2.getByProductId(productId);
+
+    if (findOrderItem) {
+      res
+        .status(404)
+        .send({ error: "Produto esta vinculado a um ou mais pedidos" });
+      return;
+    }
+
+    if (!product) {
+      res.status(404).send({ error: "Product not found" });
+      return;
+    }
+
+    res.send(product);
   };
-  
+
   delete: RequestHandler = async (req, res) => {
-      const params = req.params as { id: string };
+    const params = req.params as { id: string };
 
-      if (typeof params.id !== "string") {
-        res.status(400).send({ error: "Invalid id" });
-        return;
-      }
+    if (typeof params.id !== "string") {
+      res.status(400).send({ error: "Invalid id" });
+      return;
+    }
 
-      const productId = Number(params.id);
-      const deleted: boolean = await this.repository.delete(productId);
+    const productId = Number(params.id);
+    const deleted: boolean = await this.repository.delete(productId);
 
-      const findOrderItem = await this.repository2.getByProductId(productId)
+    const findOrderItem = await this.repository2.getByProductId(productId);
 
+    if (findOrderItem) {
+      res
+        .status(404)
+        .send({ error: "Produto esta vinculado a um ou mais pedidos" });
+      return;
+    }
 
-      if(findOrderItem){
-        res.status(404).send({ error: "Produto esta vinculado a um ou mais pedidos" });
-        return;
-      }
+    if (!deleted) {
+      res.status(404).send({ error: "Product not found" });
+      return;
+    }
 
-      if (!deleted) {
-        res.status(404).send({ error: "Product not found" });
-        return;
-      }
-
-      res.code(204).send();
+    res.code(204).send();
   };
 }
