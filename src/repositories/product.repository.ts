@@ -34,31 +34,20 @@ export class ProductRepository {
 
   async delete(id: number): Promise<boolean> {
     try {
-      const findOrderItem = await prisma.order_item.findMany({
-        where: { productId: id },
-      });
 
-      if (!findOrderItem) {
         const deleteResult = await prisma.product.delete({
           where: { id },
         });
 
         console.log("Produto deletado com sucesso");
         return deleteResult !== null;
-      } else {
-        console.log("O produto está vinculado a um ou mais pedidos");
-      }
     } catch (error) {
       throw error;
     }
   }
 
   async update(id: number, data: Product): Promise<Product | null> {
-    const findOrderItem = await prisma.order_item.findMany({
-      where: { productId: id },
-    });
 
-    if (!findOrderItem) {
       const product = await prisma.product.update({
         where: { id },
         data,
@@ -68,9 +57,7 @@ export class ProductRepository {
       }
 
       return product;
-    } else {
-      console.log("O produto está vinculado a um ou mais pedidos");
-    }
+
   }
   catch(error) {
     throw error;
