@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { ProductRepository } from "../../repositories/product.repository";
 import { Product } from "@prisma/client";
+import { OrderRepository } from "../../repositories/order.repository";
 
 type MyRequest = FastifyRequest;
 type MyReply = FastifyReply;
@@ -9,9 +10,11 @@ type RequestHandler = (req: MyRequest, res: MyReply) => Promise<void>;
 
 export class ProductController {
   repository: ProductRepository;
+  repository2: OrderRepository;
 
-  constructor(repository: ProductRepository) {
+  constructor(repository: ProductRepository, repository2: OrderRepository) {
     this.repository = repository;
+    this.repository2 = repository2;
   }
 
   index: RequestHandler = async (req, res) => {
@@ -70,7 +73,6 @@ export class ProductController {
   };
   
   delete: RequestHandler = async (req, res) => {
-    try {
       const params = req.params as { id: string };
 
       if (typeof params.id !== "string") {
@@ -81,14 +83,19 @@ export class ProductController {
       const productId = Number(params.id);
       const deleted: boolean = await this.repository.delete(productId);
 
+      const findOrderItem = await this.repository2.getByProductId(productId)
+
+
+      if(findOrderItem){
+        res.status(404).send({ error: "Produto esta vinculado a um ou mais pedidos" });
+        return;
+      }
+
       if (!deleted) {
         res.status(404).send({ error: "Product not found" });
         return;
       }
 
       res.code(204).send();
-    } catch (error) {
-      res.status(500).send({ error: "Internal server error" });
-    }
   };
 }

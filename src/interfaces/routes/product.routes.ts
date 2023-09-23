@@ -2,11 +2,13 @@ import { PrismaClient } from '@prisma/client';
 import { ProductController } from '../controllers/product.controller';
 import { ProductRepository } from '../../repositories/product.repository';
 import { FastifyRequest, FastifyReply, FastifyInstance } from 'fastify';
+import { OrderRepository } from '../../repositories/order.repository';
 
 const prisma = new PrismaClient();
 
 const productRepository = new ProductRepository();
-const productController = new ProductController(productRepository);
+const orderRepository = new OrderRepository()
+const productController = new ProductController(productRepository,orderRepository );
 
 const productRouter = (server: FastifyInstance, options: any, done: () => void) => {
   

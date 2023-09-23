@@ -61,6 +61,12 @@ export class OrderRepository {
     });
   }
 
+  async getByProductId(id: number): Promise<any> {
+    return prisma.order_item.findMany({
+      where: { productId: id },
+    });
+  }
+
   async findItemsByOrderId(orderId: number): Promise<Order_item[]> {
     return prisma.order_item.findMany({
       where: {

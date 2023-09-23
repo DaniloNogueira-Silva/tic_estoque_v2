@@ -33,10 +33,26 @@ export class ProductRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const deleteResult = await prisma.product.delete({
-      where: { id },
-    });
-    return deleteResult !== null;
+    
+    try {
+      const findOrderItem = await prisma.order_item.findMany({
+        where: { productId: id}
+      })
+
+      if(!findOrderItem){
+        const deleteResult = await prisma.product.delete({
+          where: { id },
+        });
+  
+        console.log('Produto deletado com sucesso')
+        return deleteResult !== null;
+      }else {
+        console.log('O produto está vinculado a um ou mais pedidos')
+      }
+        
+    } catch (error) {
+      throw error
+    }
   }
 
   async update(id: number, data: Product): Promise<Product | null> {
