@@ -42,7 +42,7 @@ export class ProductRepository {
         console.log("Produto deletado com sucesso");
         return deleteResult !== null;
     } catch (error) {
-      throw error;
+      console.log("Ocorreu um erro ao deletar o produto");
     }
   }
 
@@ -60,6 +60,7 @@ export class ProductRepository {
 
   }
   catch(error) {
-    throw error;
+    console.log("Ocorreu um erro ao autalizar o produto");
+
   }
 }

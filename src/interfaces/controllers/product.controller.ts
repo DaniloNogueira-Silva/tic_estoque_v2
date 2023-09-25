@@ -105,6 +105,6 @@ export class ProductController {
       return;
     }
 
-    res.code(204).send();
+    res.code(200).send();
   };
 }
