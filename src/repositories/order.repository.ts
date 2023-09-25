@@ -62,7 +62,7 @@ export class OrderRepository {
   }
 
   async getByProductId(id: number): Promise<any> {
-    return prisma.order_item.findMany({
+    return prisma.order_item.findFirst({
       where: { productId: id },
     });
   }

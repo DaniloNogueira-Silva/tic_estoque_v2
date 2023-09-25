@@ -10,11 +10,11 @@ type RequestHandler = (req: MyRequest, res: MyReply) => Promise<void>;
 
 export class ProductController {
   repository: ProductRepository;
-  repository2: OrderRepository;
+  orderRepository: OrderRepository;
 
-  constructor(repository: ProductRepository, repository2: OrderRepository) {
+  constructor(repository: ProductRepository, orderRepository: OrderRepository) {
     this.repository = repository;
-    this.repository2 = repository2;
+    this.orderRepository = orderRepository;
   }
 
   index: RequestHandler = async (req, res) => {
@@ -51,19 +51,23 @@ export class ProductController {
     }
 
     const params = req.params as { id: string };
+    const productId = Number(params.id);
 
     if (typeof params.id !== "string") {
       res.status(400).send({ error: "Invalid id" });
       return;
     }
 
-    const productId = Number(params.id);
-    const product: Product | null = await this.repository.update(
-      productId,
-      productInterface
-    );
+    const productExists = await this.repository.getById(productId)
 
-    const findOrderItem = await this.repository2.getByProductId(productId);
+    if (!productExists) {
+      res
+        .status(404)
+        .send({ error: "Não existe produto com esse ID" });
+      return;
+    }
+
+    const findOrderItem = await this.orderRepository.getByProductId(productId);
 
     if (findOrderItem) {
       res
@@ -72,12 +76,12 @@ export class ProductController {
       return;
     }
 
-    if (!product) {
-      res.status(404).send({ error: "Product not found" });
-      return;
-    }
+    const product: Product | null = await this.repository.update(
+      productId,
+      productInterface
+    );
 
-    res.send(product);
+    res.code(200).send(product);
   };
 
   delete: RequestHandler = async (req, res) => {
@@ -89,9 +93,14 @@ export class ProductController {
     }
 
     const productId = Number(params.id);
-    const deleted: boolean = await this.repository.delete(productId);
+    const product = await this.repository.getById(productId)
 
-    const findOrderItem = await this.repository2.getByProductId(productId);
+    if (!product) {
+      res.status(404).send({ error: "Produto não encontrado" });
+      return;
+    }
+
+    const findOrderItem = await this.orderRepository.getByProductId(productId);
 
     if (findOrderItem) {
       res
@@ -100,11 +109,8 @@ export class ProductController {
       return;
     }
 
-    if (!deleted) {
-      res.status(404).send({ error: "Product not found" });
-      return;
-    }
+    await this.repository.delete(productId);
 
-    res.code(200).send();
+    res.code(200).send({ message: "Produto deletado com sucesso" });
   };
 }
