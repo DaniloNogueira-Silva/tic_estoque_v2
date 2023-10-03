@@ -100,53 +100,31 @@ export class OrderController {
               </tr>
           `;
 
-        const orderItems: OrderItem[] =
-          await this.repository.findItemsByOrderId(order.id);
+        const orderItems = await this.repository.teste(id);
 
-        orderItems.forEach((orderItem, index) => {
-          const dataOrderItem = {
-            status: orderItem.status,
-            expected_date: orderItem.expected_date,
-            quantityInStock: orderItem.quantityInStock,
-            newQuantity: orderItem.newQuantity,
-            orderId: orderItem.orderId,
-            productId: orderItem.productId,
-          };
+        console.log(orderItems)
 
-          async function getName() {
-            try {
-              const data = await this.repositoryProduct.getById(dataOrderItem.productId);
-              return data.name;
-            } catch (error) {
-              console.error(error);
-              return "Nome do produto não encontrado";
-            }
-          }
-
-          const productName = getName();
-
-          const data = dataOrderItem.expected_date;
-          const date = new Date(data);
-          const formattedDate = new Intl.DateTimeFormat("pt-BR", {
+          const teste = orderItems.expected_date;
+          const datee = new Date(data);
+          const formated = new Intl.DateTimeFormat("pt-BR", {
             day: "numeric",
             month: "long",
             year: "numeric",
-          }).format(date);
+          }).format(datee);
 
           texto += `
               <tr>
                 <td style="border: 1px solid black; padding: 8px; text-align: left;">
-                  Data esperada de entrega: ${formattedDate}<br> status: ${dataOrderItem.status}<br> Quantidade em estoque: ${dataOrderItem.quantityInStock}<br> Quantidade a ser pedida: ${dataOrderItem.newQuantity} <br> 
-                  Nome do produto: ${productName}
+                  Data esperada de entrega: ${formated}<br> status: ${orderItems.order_items.status}<br> Quantidade em estoque: ${orderItems.order_items.quantityInStock}<br> Quantidade a ser pedida: ${orderItems.order_items.newQuantity} <br> 
+                  Nome do produto: ${orderItems.order_items[0].product.name}
                 </td>
               </tr> 
           `;
-        });
 
         texto += ` 
           </table>
           <p style="border: 1px solid black; width: 90%; text-align: center; margin-left: auto; margin-right: auto;"> IV- AUTENTICAÇÃO </p>
-          <p style="margin-left: 50px ; "> Local e Data: Franca, de ${formattedDate} </p>
+          <p style="margin-left: 50px ; "> Local e Data: Franca, de ${formated} </p>
           <p style="margin-left: 50px ; "> Assinatura: ______________________________________________________________________ </p>
         `;
 

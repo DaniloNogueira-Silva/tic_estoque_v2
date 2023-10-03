@@ -23,11 +23,33 @@ export class OrderRepository {
     try {
       const ordersWithItems = await prisma.order.findMany({
         include: {
-          order_items: true,
+          order_items: {
+            include: {
+              product: true,
+            },
+          },
         },
       });
-
       return ordersWithItems
+    } catch (error) {
+      console.log(error);
+      throw new Error("Failed to fetch orders with items");
+    }
+  }
+
+  async teste(id: number): Promise<any> {
+    try {
+      const orders = await prisma.order.findUnique({
+        where: {id},
+        include: {
+          order_items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+      return orders
     } catch (error) {
       console.log(error);
       throw new Error("Failed to fetch orders with items");
