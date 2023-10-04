@@ -137,6 +137,9 @@ export class OrderController {
           texto += `
               <tr>
                 <td style="border: 1px solid black; padding: 8px; text-align: left;">
+                  ${currentItem.product.name}
+                </td>
+                <td style="border: 1px solid black; padding: 8px; text-align: left;">
                   ${format}
                 </td>
                 <td style="border: 1px solid black; padding: 8px; text-align: left;">
@@ -147,9 +150,6 @@ export class OrderController {
                 </td>
                 <td style="border: 1px solid black; padding: 8px; text-align: left;">
                    ${currentItem.newQuantity}
-                </td>
-                <td style="border: 1px solid black; padding: 8px; text-align: left;">
-                   ${currentItem.product.name}
                 </td>
               </tr>`;
         }
