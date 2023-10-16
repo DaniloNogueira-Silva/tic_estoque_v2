@@ -97,7 +97,7 @@ export class UserController {
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
-
+      
       if (!isPasswordValid) {
 
         const response = apiErrorResponse('UNAUTHORIZED')

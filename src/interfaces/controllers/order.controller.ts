@@ -232,13 +232,13 @@ export class OrderController {
     try {
       const { order_items } = req.body as { order_items: Order_item[] };
       const params = req.params as { id: string };
-
+     
       if (typeof params.id !== "string") {
         res.status(400).send({ error: "Invalid id" });
         return;
       }
 
-      const orderItemId = Number(params.id);
+      const orderItemId = Number(params.id); 
       const updatedOrderItems = await Promise.all(
         order_items.map(async (orderItemData) => {
           const product = await this.repositoryProduct.getById(
@@ -250,12 +250,12 @@ export class OrderController {
             );
           }
 
-          console.log(orderItemId)
           const updatedOrderItem = await this.repository.updateOrder(orderItemId, {
             status: orderItemData.status,
           });
+          let updatedProduct
           if (orderItemData.status == "chegou") {
-            await this.repositoryProduct.update(orderItemData.productId, {
+            updatedProduct = await this.repositoryProduct.update(orderItemData.productId, {
               id: orderItemData.productId,
               quantity:
                 orderItemData.quantityInStock + orderItemData.newQuantity,
@@ -267,7 +267,7 @@ export class OrderController {
               location: product.location,
             });
           }
-          res.send({ message: "Pedido atualizado com sucesso", updatedOrderItem });
+          res.send({ message: "Pedido atualizado com sucesso", updatedProduct });
         })
       );
     } catch (error) {
