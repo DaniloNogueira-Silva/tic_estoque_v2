@@ -254,20 +254,10 @@ export class OrderController {
             );
           }
 
-<<<<<<< HEAD
           const updatedOrderItem = await this.repository.updateOrder(orderItemId, {
             status: orderItemData.status,
           });
           let updatedProduct
-=======
-          console.log(orderItemId);
-          const updatedOrderItem = await this.repository.updateOrder(
-            orderItemId,
-            {
-              status: orderItemData.status,
-            }
-          );
->>>>>>> 0df03094bf5b33ac741b035a33a687b9c10e66ec
           if (orderItemData.status == "chegou") {
             updatedProduct = await this.repositoryProduct.update(orderItemData.productId, {
               id: orderItemData.productId,
@@ -281,14 +271,7 @@ export class OrderController {
               location: product.location,
             });
           }
-<<<<<<< HEAD
           res.send({ message: "Pedido atualizado com sucesso", updatedProduct });
-=======
-          res.send({
-            message: "Pedido atualizado com sucesso",
-            updatedOrderItem,
-          });
->>>>>>> 0df03094bf5b33ac741b035a33a687b9c10e66ec
         })
       );
     } catch (error) {
