@@ -3,6 +3,8 @@ import { OrderRepository } from "../../repositories/order.repository";
 import { Order, Order_item, Product } from "@prisma/client";
 import { ProductRepository } from "../../repositories/product.repository";
 import pdf from "html-pdf";
+import fs from "fs";
+import path from "path";
 
 type MyRequest = FastifyRequest;
 type MyReply = FastifyReply;
@@ -45,13 +47,13 @@ export class OrderController {
     }
   };
 
-  orderWithItems: RequestHandler = async (req,res) => {
+  orderWithItems: RequestHandler = async (req, res) => {
     try {
-      res.send(( await this.repository.orderWithItems() ))
+      res.send(await this.repository.orderWithItems());
     } catch (error) {
       res.status(500).send({ error: "Internal server error" });
     }
-  }
+  };
 
   latest: RequestHandler = async (req, res) => {
     try {
@@ -81,67 +83,76 @@ export class OrderController {
           year: "numeric",
         }).format(date);
 
+        const imagePath = "image/creche.jpg";
+        const imageBase64 = fs.readFileSync(path.resolve(imagePath), "base64");
+
         let texto = `
+            <p style="margin-right: 0px"> <img src="data:image/jpeg;base64,${imageBase64}" alt="Logo da creche"> </p>
             <p style="margin-right: 0px"> </p>
             <h4 style="color: gray; text-align: center; margin-top: 50px "> NV SOCIEDADE SOLIDÁRIA </h4>
             <p style="color: gray; text-align: center "> Gestora do CCI Nossa Senhora da Conceição </p>
             <p style="color: gray; text-align: center "> CNPJ n. 05.166.687/0002-34 </p>
-            <p style="font-weight: bold; text-align: center ">CONSOLIDAÇÃO DE PESQUISAS DE PREÇOS</p>
+            <p style="font-weight: bold; text-align: center ">RELATÓRIO DE PEDIDOS</p>
 
             <p  style=" margin-left: 50px ">ORGÃO CONCESSOR: Prefeitura Municipal de Franca </p>
             <p  style=" margin-left: 50px ">ENTIDADE CONVENIADA: NV Sociedade Solidária (CCI Municipal Nossa senhora da Conceição)</p>
             <p  style=" margin-left: 50px ">EXERCÍCIO: 2023</p>
             <table style="border-collapse: collapse; width: 90%; margin-left: auto; margin-right: auto ">
-              <tr>
-                <th colspan="2" style="border: 1px solid black; padding: 8px; text-align: center;"
-                  >I – IDENTIFICAÇÃO DOS PROPONENTES (Fornecedores de Produtos)
-                </th>
-                
-              </tr>
+            <tr>
+            <th colspan="6" style="border: 1px solid black; padding: 8px; text-align: center;">
+              II – Detalhes dos Pedidos (R$)
+            </th>
+          </tr>
+          <tr>
+            <th style="border: 1px solid black; padding: 8px; text-align: center;">
+              Nome do produto
+            </th>
+            <th style="border: 1px solid black; padding: 8px; text-align: center;">
+              Data de entrega
+            </th>
+            <th style="border: 1px solid black; padding: 8px; text-align: center;">
+              Situação do pedido
+            </th>
+            <th style="border: 1px solid black; padding: 8px; text-align: center;">
+              Quantidade em estoque
+            </th>
+            <th style="border: 1px solid black; padding: 8px; text-align: center;">
+              Quantidade a ser adicionada
+            </th>
+          </tr>
           `;
 
-        const orderItems: OrderItem[] =
-          await this.repository.findItemsByOrderId(order.id);
+        const orderItems = await this.repository.teste(id);
 
-        orderItems.forEach((orderItem, index) => {
-          const dataOrderItem = {
-            status: orderItem.status,
-            expected_date: orderItem.expected_date,
-            quantityInStock: orderItem.quantityInStock,
-            newQuantity: orderItem.newQuantity,
-            orderId: orderItem.orderId,
-            productId: orderItem.productId,
-          };
+        for (let i = 0; i < orderItems.order_items.length; i++) {
+          const currentItem = orderItems.order_items[i];
 
-          async function getName() {
-            try {
-              const data = await this.repositoryProduct.getById(dataOrderItem.productId);
-              return data.name;
-            } catch (error) {
-              console.error(error);
-              return "Nome do produto não encontrado";
-            }
-          }
-
-          const productName = getName();
-
-          const data = dataOrderItem.expected_date;
-          const date = new Date(data);
-          const formattedDate = new Intl.DateTimeFormat("pt-BR", {
+          const expectedDate = new Date(currentItem.expected_date);
+          const format = new Intl.DateTimeFormat("pt-BR", {
             day: "numeric",
             month: "long",
             year: "numeric",
-          }).format(date);
+          }).format(expectedDate);
 
           texto += `
               <tr>
                 <td style="border: 1px solid black; padding: 8px; text-align: left;">
-                  Data esperada de entrega: ${formattedDate}<br> status: ${dataOrderItem.status}<br> Quantidade em estoque: ${dataOrderItem.quantityInStock}<br> Quantidade a ser pedida: ${dataOrderItem.newQuantity} <br> 
-                  Nome do produto: ${productName}
+                  ${currentItem.product.name}
                 </td>
-              </tr> 
-          `;
-        });
+                <td style="border: 1px solid black; padding: 8px; text-align: left;">
+                  ${format}
+                </td>
+                <td style="border: 1px solid black; padding: 8px; text-align: left;">
+                   ${currentItem.status}
+                </td>
+                <td style="border: 1px solid black; padding: 8px; text-align: left;">
+                   ${currentItem.quantityInStock}
+                </td>
+                <td style="border: 1px solid black; padding: 8px; text-align: left;">
+                   ${currentItem.newQuantity}
+                </td>
+              </tr>`;
+        }
 
         texto += ` 
           </table>
@@ -181,12 +192,10 @@ export class OrderController {
 
   createOrderItem: RequestHandler = async (req, res) => {
     try {
-
       const { order_items } = req.body as { order_items: Order_item[] };
 
       const updatedOrderItems = await Promise.all(
         order_items.map(async (orderItemData) => {
-
           const product = await this.repositoryProduct.getById(
             orderItemData.productId
           );
@@ -203,23 +212,18 @@ export class OrderController {
             quantityInStock: orderItemData.quantityInStock,
             newQuantity: orderItemData.newQuantity,
             orderId: orderItemData.orderId,
-            productId: orderItemData.productId
-          }
-            
-          )
-            await this.repositoryProduct.update(
-              orderItemData.productId,
-              {
-                id: orderItemData.productId,
-                quantity: orderItemData.quantityInStock,
-                name: product.name,
-                categoryId: product.categoryId,
-                measureId: product.measureId,
-                purchase_allowed: product.purchase_allowed,
-                originCityHall: product.originCityHall,
-                location: product.location,
-              }
-            );
+            productId: orderItemData.productId,
+          });
+          await this.repositoryProduct.update(orderItemData.productId, {
+            id: orderItemData.productId,
+            quantity: orderItemData.quantityInStock,
+            name: product.name,
+            categoryId: product.categoryId,
+            measureId: product.measureId,
+            purchase_allowed: product.purchase_allowed,
+            originCityHall: product.originCityHall,
+            location: product.location,
+          });
           res.send({ message: "Pedido criado com sucesso", updatedOrderItem });
         })
       );
@@ -250,10 +254,20 @@ export class OrderController {
             );
           }
 
+<<<<<<< HEAD
           const updatedOrderItem = await this.repository.updateOrder(orderItemId, {
             status: orderItemData.status,
           });
           let updatedProduct
+=======
+          console.log(orderItemId);
+          const updatedOrderItem = await this.repository.updateOrder(
+            orderItemId,
+            {
+              status: orderItemData.status,
+            }
+          );
+>>>>>>> 0df03094bf5b33ac741b035a33a687b9c10e66ec
           if (orderItemData.status == "chegou") {
             updatedProduct = await this.repositoryProduct.update(orderItemData.productId, {
               id: orderItemData.productId,
@@ -267,7 +281,14 @@ export class OrderController {
               location: product.location,
             });
           }
+<<<<<<< HEAD
           res.send({ message: "Pedido atualizado com sucesso", updatedProduct });
+=======
+          res.send({
+            message: "Pedido atualizado com sucesso",
+            updatedOrderItem,
+          });
+>>>>>>> 0df03094bf5b33ac741b035a33a687b9c10e66ec
         })
       );
     } catch (error) {
