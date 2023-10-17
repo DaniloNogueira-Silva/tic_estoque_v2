@@ -236,13 +236,13 @@ export class OrderController {
     try {
       const { order_items } = req.body as { order_items: Order_item[] };
       const params = req.params as { id: string };
-     
+
       if (typeof params.id !== "string") {
         res.status(400).send({ error: "Invalid id" });
         return;
       }
 
-      const orderItemId = Number(params.id); 
+      const orderItemId = Number(params.id);
       const updatedOrderItems = await Promise.all(
         order_items.map(async (orderItemData) => {
           const product = await this.repositoryProduct.getById(
@@ -254,15 +254,15 @@ export class OrderController {
             );
           }
 
+          const getQuantities = await this.repository.getIdOrderItems(orderItemId)
           const updatedOrderItem = await this.repository.updateOrder(orderItemId, {
             status: orderItemData.status,
           });
           let updatedProduct
           if (orderItemData.status == "chegou") {
-            updatedProduct = await this.repositoryProduct.update(orderItemData.productId, {
-              id: orderItemData.productId,
-              quantity:
-                orderItemData.quantityInStock + orderItemData.newQuantity,
+            updatedProduct = await this.repositoryProduct.update(product.id, {
+              id: product.id,
+              quantity: getQuantities[0].quantityInStock + getQuantities[0].newQuantity,
               name: product.name,
               categoryId: product.categoryId,
               measureId: product.measureId,
