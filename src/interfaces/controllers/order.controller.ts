@@ -254,18 +254,15 @@ export class OrderController {
             );
           }
 
-          console.log(orderItemId);
-          const updatedOrderItem = await this.repository.updateOrder(
-            orderItemId,
-            {
-              status: orderItemData.status,
-            }
-          );
+          const getQuantities = await this.repository.getIdOrderItems(orderItemId)
+          const updatedOrderItem = await this.repository.updateOrder(orderItemId, {
+            status: orderItemData.status,
+          });
+          let updatedProduct
           if (orderItemData.status == "chegou") {
-            await this.repositoryProduct.update(orderItemData.productId, {
-              id: orderItemData.productId,
-              quantity:
-                orderItemData.quantityInStock + orderItemData.newQuantity,
+            updatedProduct = await this.repositoryProduct.update(product.id, {
+              id: product.id,
+              quantity: getQuantities[0].quantityInStock + getQuantities[0].newQuantity,
               name: product.name,
               categoryId: product.categoryId,
               measureId: product.measureId,
@@ -274,10 +271,7 @@ export class OrderController {
               location: product.location,
             });
           }
-          res.send({
-            message: "Pedido atualizado com sucesso",
-            updatedOrderItem,
-          });
+          res.send({ message: "Pedido atualizado com sucesso", updatedProduct });
         })
       );
     } catch (error) {

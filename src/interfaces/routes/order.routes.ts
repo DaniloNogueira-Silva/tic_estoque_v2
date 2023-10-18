@@ -78,7 +78,7 @@ const orderRouter = (
   done();
 
   server.post<{ Params: { id: string } }>(
-    "/updadeProduct/:id",
+    "/updateProduct/:id",
     async (req: FastifyRequest, reply: FastifyReply) => {
       try {
         await orderController.updateProductIfArrived(req, reply);
