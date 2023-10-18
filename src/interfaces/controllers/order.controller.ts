@@ -234,7 +234,6 @@ export class OrderController {
 
   updateProductIfArrived: RequestHandler = async (req, res) => {
     try {
-      const { order_items } = req.body as { order_items: Order_item[] };
       const params = req.params as { id: string };
 
       if (typeof params.id !== "string") {
@@ -243,39 +242,36 @@ export class OrderController {
       }
 
       const orderItemId = Number(params.id);
-      const updatedOrderItems = await Promise.all(
-        order_items.map(async (orderItemData) => {
-          const product = await this.repositoryProduct.getById(
-            orderItemData.productId
-          );
-          if (!product) {
-            throw new Error(
-              `Produto com ID ${orderItemData.productId} não encontrado`
-            );
-          }
 
-          const getQuantities = await this.repository.getIdOrderItems(orderItemId)
-          const updatedOrderItem = await this.repository.updateOrder(orderItemId, {
-            status: orderItemData.status,
-          });
-          let updatedProduct
-          if (orderItemData.status == "chegou") {
-            updatedProduct = await this.repositoryProduct.update(product.id, {
-              id: product.id,
-              quantity: getQuantities[0].quantityInStock + getQuantities[0].newQuantity,
-              name: product.name,
-              categoryId: product.categoryId,
-              measureId: product.measureId,
-              purchase_allowed: product.purchase_allowed,
-              originCityHall: product.originCityHall,
-              location: product.location,
-            });
-          }
-          res.send({ message: "Pedido atualizado com sucesso", updatedProduct });
-        })
-      );
+      const getOrderItem = await this.repository.getIdOrderItems(orderItemId);
+
+      const productId = getOrderItem[0].productId;
+
+      const product = await this.repositoryProduct.getById(productId);
+
+      if (!product) {
+        throw new Error(
+          `Produto com ID ${getOrderItem[0].productId} não encontrado`
+        );
+      }
+
+      await this.repository.updateOrder(orderItemId, {
+        status: "Chegou",
+      });
+
+      const updatedProduct = await this.repositoryProduct.update(product.id, {
+        id: product.id,
+        quantity: getOrderItem[0].quantityInStock + getOrderItem[0].newQuantity,
+        name: product.name,
+        categoryId: product.categoryId,
+        measureId: product.measureId,
+        purchase_allowed: product.purchase_allowed,
+        originCityHall: product.originCityHall,
+        location: product.location,
+      });
+      res.send({ message: "Pedido atualizado com sucesso", updatedProduct });
     } catch (error) {
-      res.status(500).send({ error: error.message });
+      res.status(500).send({ message: error.message, error: error });
     }
   };
 }
