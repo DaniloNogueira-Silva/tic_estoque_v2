@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto"
 import nodemailer from 'nodemailer';
-import { apiErrorResponse } from "lib-api-error";
+import { apiErrorResponse } from "../../helpers/errors/index";
 
 type MyRequest = FastifyRequest;
 type MyReply = FastifyReply;

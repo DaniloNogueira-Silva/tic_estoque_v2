@@ -31,7 +31,6 @@
     "yup": "^1.2.0"
   },
   "dependencies": {
-    "html-pdf": "^3.0.1",
-    "lib-api-error": "^1.0.5"
+    "html-pdf": "^3.0.1"
   }
 }
