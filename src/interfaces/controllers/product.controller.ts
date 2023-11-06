@@ -28,16 +28,10 @@ export class ProductController {
 
   create: RequestHandler = async (req, res) => {
     try {
-      const productInterface = req.body as Product;
-
-      if (!productInterface) {
-        res.status(400).send({ error: "Invalid product data" });
-        return;
-      }
-
-      const product: Product = await this.repository.create(productInterface);
+      const product = await this.repository.create(req.body);
       res.send(product);
     } catch (error) {
+      console.log(error);
       res.status(500).send({ error });
     }
   };
@@ -58,18 +52,16 @@ export class ProductController {
       return;
     }
 
-    const productExists = await this.repository.getById(productId)
+    const productExists = await this.repository.getById(productId);
 
     if (!productExists) {
-      res
-        .status(404)
-        .send({ error: "Não existe produto com esse ID" });
+      res.status(404).send({ error: "Não existe produto com esse ID" });
       return;
     }
 
     const findOrderItem = await this.orderRepository.getByProductId(productId);
 
-    if (findOrderItem.status != 'Chegou') {
+    if (findOrderItem.status != "Chegou") {
       res
         .status(404)
         .send({ error: "Produto esta vinculado a um ou mais pedidos" });
@@ -93,7 +85,7 @@ export class ProductController {
     }
 
     const productId = Number(params.id);
-    const product = await this.repository.getById(productId)
+    const product = await this.repository.getById(productId);
 
     if (!product) {
       res.status(404).send({ error: "Produto não encontrado" });

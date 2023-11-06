@@ -18,12 +18,20 @@ export class ProductRepository {
     });
   }
 
-  async create(data: Product): Promise<Product> {
-    const { categoryId, measureId, ...productData } = data;
+  async create(data): Promise<Product> {
+    const { categoryId, measureId, purchase_allowed,...productData } = data;
+
+    let compra
+    if (data.originCityHall == true) {
+      compra = false;
+    } else if (data.originCityHall == false) {
+      compra = true;
+    }
 
     const product = await prisma.product.create({
       data: {
         ...productData,
+        purchase_allowed: compra, 
         categoryId,
         measureId,
       },
