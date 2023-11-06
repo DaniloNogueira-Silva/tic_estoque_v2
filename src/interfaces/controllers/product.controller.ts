@@ -69,7 +69,7 @@ export class ProductController {
 
     const findOrderItem = await this.orderRepository.getByProductId(productId);
 
-    if (findOrderItem) {
+    if (findOrderItem.status != 'Chegou') {
       res
         .status(404)
         .send({ error: "Produto esta vinculado a um ou mais pedidos" });
