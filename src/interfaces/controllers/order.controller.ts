@@ -204,6 +204,12 @@ export class OrderController {
               `Produto com ID ${orderItemData.productId} não encontrado`
             );
           }
+          
+          if(orderItemData.quantityInStock < 0 || orderItemData.newQuantity < 0){
+            throw new Error(
+              `A quantidade não pode ser negativa `
+            );
+          }
 
           const updatedOrderItem = await this.repository.create_order_item({
             id: orderItemData.id,

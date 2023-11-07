@@ -7,15 +7,14 @@ export class OrderRepository {
     return prisma.order.findMany();
   }
 
-
   async latest(): Promise<Order[]> {
     const latestOrders = await prisma.order.findMany({
-      take: 10, 
+      take: 10,
       orderBy: {
-        id: 'desc'
-      }
+        id: "desc",
+      },
     });
-  
+
     return latestOrders;
   }
 
@@ -30,7 +29,7 @@ export class OrderRepository {
           },
         },
       });
-      return ordersWithItems
+      return ordersWithItems;
     } catch (error) {
       console.log(error);
       throw new Error("Failed to fetch orders with items");
@@ -40,7 +39,7 @@ export class OrderRepository {
   async teste(id: number): Promise<any> {
     try {
       const orders = await prisma.order.findUnique({
-        where: {id},
+        where: { id },
         include: {
           order_items: {
             include: {
@@ -49,13 +48,12 @@ export class OrderRepository {
           },
         },
       });
-      return orders
+      return orders;
     } catch (error) {
       console.log(error);
       throw new Error("Failed to fetch orders with items");
     }
   }
-  
 
   async orderDetails(id: number): Promise<Order | null> {
     if (isNaN(id)) {
@@ -135,10 +133,9 @@ export class OrderRepository {
 
   async create_order(data: Order): Promise<Order> {
     try {
-
       const order = await prisma.order.create({
         data: {
-          ...data
+          ...data,
         },
       });
       return order;
