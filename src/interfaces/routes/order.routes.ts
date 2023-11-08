@@ -25,6 +25,16 @@ const orderRouter = (
     }
   });
 
+  server.get("/show/pendentes", async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await orderController.find(req, reply);
+      done();
+    } catch (error) {
+      console.log(error);
+      reply.status(500).send({ error: "Não foi possível recuperar os pedidos" });
+    }
+  });
+
   server.get("/show/orders", async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       await orderController.orderWithItems(req, reply);

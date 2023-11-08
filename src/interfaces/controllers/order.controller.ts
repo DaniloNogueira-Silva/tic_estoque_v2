@@ -47,6 +47,15 @@ export class OrderController {
     }
   };
 
+  find: RequestHandler = async (req, res) => {
+    try {
+      const orders: Order[] = await this.repository.find();
+      res.send(orders);
+    } catch (error) {
+      res.status(500).send({ error: "Internal server error" });
+    }
+  };
+
   orderWithItems: RequestHandler = async (req, res) => {
     try {
       res.send(await this.repository.orderWithItems());

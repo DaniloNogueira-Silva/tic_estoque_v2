@@ -75,6 +75,21 @@ export class OrderRepository {
     }
   }
 
+  async find(): Promise<any> {
+    const orders = await prisma.order.findMany({
+      include: {
+        order_items: {
+          where: { status: 'pendente' || 'Pendente' }
+        }
+      }
+    });
+    const ordersWithPendingItems = orders.filter(order => {
+      return order.order_items.some(item => item.status === 'pendente');
+    });
+  
+    return ordersWithPendingItems;
+  }
+
   async getId(id: number): Promise<Order[]> {
     return prisma.order.findMany({
       where: { id },
