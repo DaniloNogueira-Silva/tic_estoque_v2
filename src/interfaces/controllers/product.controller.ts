@@ -37,7 +37,7 @@ export class ProductController {
   };
 
   update: RequestHandler = async (req, res) => {
-    const productInterface = req.body as Product;
+    const productInterface = req.body;
 
     if (!productInterface) {
       res.status(400).send({ error: "Invalid product data" });
