@@ -37,6 +37,17 @@ export class BudgetController {
     }
   };
 
+  delete: RequestHandler = async (req, res) => {
+    try {
+      const id: number = parseInt((req.params as { id: string }).id);
+      const budget: Budget = await this.repository.delete(id);
+      
+      res.send(budget);
+    } catch (error) {
+      res.status(500).send({ error: "Internal server error" });
+    }
+  };
+
   showCompanies: RequestHandler = async (req, res) => {
     try {
       const budgetId: number = parseInt((req.params as { id: string }).id);

@@ -20,6 +20,17 @@ const BudgetRouter = (server: FastifyInstance, options: any, done: () => void) =
         }
     });
 
+    server.delete<{ Params: { id: string } }>('/:id', async (req, reply) => {
+        try {
+          await budgetController.delete(req, reply);
+          reply.status(200).send(`budget deleted`);
+          done();
+        } catch (error) {
+          console.log(error);
+          reply.status(500).send({ error: 'Não foi possível deletar o orçamento' });
+        }
+      });
+
     server.get<{ Params: { id: string } }>('/budgetDetails/:id', async (req: FastifyRequest, reply: FastifyReply) => {
         try {
             await budgetController.budgetDetails(req, reply);
