@@ -110,7 +110,7 @@ export class UserController {
         process.env.TOKEN_SECRET
       );
 
-      res.status(200).send({ isAdmin: user.isAdmin });
+      res.status(200).send({ isAdmin: user.isAdmin, token: token });
     } catch (error) {
       res.status(500).send("Erro interno no servidor");
       console.log(error)
