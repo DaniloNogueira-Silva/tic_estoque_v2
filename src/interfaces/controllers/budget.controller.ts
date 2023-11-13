@@ -30,7 +30,7 @@ export class BudgetController {
     try {
       const id: number = parseInt((req.params as { id: string }).id);
       const budget: Budget = await this.repository.budgetDetails(id);
-      
+
       res.send(budget);
     } catch (error) {
       res.status(500).send({ error: "Internal server error" });
@@ -41,7 +41,7 @@ export class BudgetController {
     try {
       const id: number = parseInt((req.params as { id: string }).id);
       const budget: Budget = await this.repository.delete(id);
-      
+
       res.send(budget);
     } catch (error) {
       res.status(500).send({ error: "Internal server error" });
@@ -125,7 +125,7 @@ export class BudgetController {
           month: "long",
           year: "numeric",
         }).format(date);
-        
+
         const imagePath = 'image/creche.jpg';
         const imageBase64 = fs.readFileSync(path.resolve(imagePath), 'base64');
 
@@ -148,11 +148,11 @@ export class BudgetController {
               </tr>
           `;
 
-        
+
         const budgetCompanies: Budget_company[] = await this.repository.findCompaniesByBudgetId(budget.id);
-        
+
         const budgetPrices: Budget_product[] = await this.repository.findProductsByBudgetId(budget.id);
-        
+
 
         budgetCompanies.forEach((company, index) => {
           const dataCompany = {
@@ -280,15 +280,33 @@ export class BudgetController {
           <p style="margin-left: 50px ; "> Assinatura: ______________________________________________________________________ </p>
         `
 
-        pdf
-          .create(texto, {})
-          .toFile(`pdfs/${budget.name}.pdf`, (err) => {
-            if (err) {
-              res.status(500).send("Erro ao fazer o pdf");
-            } else {
-              res.status(200).send("PDF criado");
-            }
+        const createPdf = () => {
+          return new Promise<void>((resolve, reject) => {
+            pdf.create(texto, {}).toFile(`pdfs/${budget.name}.pdf`, (err) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
           });
+        };
+
+        // Agora você pode usar 'await' aqui
+        await createPdf();
+
+        const pdfPath = path.resolve(`pdfs/${budget.name}.pdf`);
+
+        // Define cabeçalhos para induzir o download do arquivo
+        res.header('Content-disposition', `attachment; filename=${budget.name}.pdf`);
+        res.header('Content-type', 'application/pdf');
+        res.header('Content-Transfer-Encoding', 'binary');
+
+        // Lê o conteúdo do arquivo e envia diretamente como resposta
+        const fileContent = await fs.promises.readFile(pdfPath);
+        res.send(fileContent);
+
+        await fs.promises.unlink(pdfPath);
       };
     } catch (error) {
       console.log(error);

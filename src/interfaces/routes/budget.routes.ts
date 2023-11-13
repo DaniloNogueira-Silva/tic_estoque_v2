@@ -74,10 +74,9 @@ const BudgetRouter = (server: FastifyInstance, options: any, done: () => void) =
         }
     });
 
-    server.post<{ Params: { id: string } }>('/print_budget/:id', async (req: FastifyRequest, reply: FastifyReply) => {
+    server.get<{ Params: { id: string } }>('/print_budget/:id', async (req: FastifyRequest, reply: FastifyReply) => {
         try {
             await budgetController.print_budget(req, reply);
-            reply.status(201).send(`PDF created`)
             done();
         } catch (error) {
             console.log(error);
