@@ -99,10 +99,19 @@ export class ProductController {
         .status(404)
         .send({ error: "Produto esta vinculado a um ou mais pedidos" });
       return;
+    } else {
+      // for (const orderItem of findOrderItem) {
+      //   const orderItemId = orderItem.id;
+      //   console.log(orderItemId)
+
+      //   await this.orderRepository.delete(orderItemId);
+      // }
+
+      const deleted = await this.orderRepository.delete(productId);
+      console.log(deleted)
     }
 
     await this.repository.delete(productId);
-
     res.code(200).send({ message: "Produto deletado com sucesso" });
   };
 }
