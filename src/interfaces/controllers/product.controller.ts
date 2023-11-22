@@ -68,6 +68,7 @@ export class ProductController {
       );
       res.code(200).send(product);
     } else {
+      
       if (findOrderItem.status != "Chegou") {
         res
           .status(404)
