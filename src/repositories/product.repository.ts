@@ -12,6 +12,16 @@ export class ProductRepository {
     });
   }
 
+  async findAllEnding(): Promise<Product[]> {
+    return prisma.product.findMany({
+      where: {
+        quantity: {
+          lte: 3
+        }
+      }
+    });
+  }
+
   async getById(id: number): Promise<Product> {
     return prisma.product.findFirstOrThrow({
       where: { id },

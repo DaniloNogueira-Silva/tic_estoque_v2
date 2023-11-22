@@ -26,6 +26,15 @@ export class ProductController {
     }
   };
 
+  indexEnding: RequestHandler = async (req, res) => {
+    try {
+      const products: Product[] = await this.repository.findAllEnding();
+      res.send(products);
+    } catch (error) {
+      res.status(500).send({ error: "Internal server error" });
+    }
+  };
+
   create: RequestHandler = async (req, res) => {
     try {
       const product = await this.repository.create(req.body);

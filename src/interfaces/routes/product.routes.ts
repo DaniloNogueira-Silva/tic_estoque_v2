@@ -22,6 +22,16 @@ const productRouter = (server: FastifyInstance, options: any, done: () => void) 
     }
   });
 
+  server.get('/ending', async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await productController.indexEnding(req, reply);
+      done();
+    } catch (error) {
+      console.log(error);
+      reply.status(500).send({ error: 'Não foi possível recuperar os produtos' });
+    }
+  });
+
   server.post('/', async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       await productController.create(req, reply);
