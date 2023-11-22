@@ -79,14 +79,14 @@ export class OrderRepository {
     const orders = await prisma.order.findMany({
       include: {
         order_items: {
-          where: { status: 'pendente' || 'Pendente' }
-        }
-      }
+          where: { status: "pendente" || "Pendente" },
+        },
+      },
     });
-    const ordersWithPendingItems = orders.filter(order => {
-      return order.order_items.some(item => item.status === 'pendente');
+    const ordersWithPendingItems = orders.filter((order) => {
+      return order.order_items.some((item) => item.status === "pendente");
     });
-  
+
     return ordersWithPendingItems;
   }
 
@@ -98,7 +98,7 @@ export class OrderRepository {
 
   async getByProductId(id: number): Promise<any> {
     return prisma.order_item.findFirst({
-      where: { productId: id },
+      where: { productId: id, status: "pendente" || "Pendente" },
     });
   }
 
@@ -169,6 +169,20 @@ export class OrderRepository {
         },
       });
       return orderItem;
+    } catch (error) {
+      throw new Error(`Failed to create order item: ${error.message}`);
+    }
+  }
+
+  async delete(id: number): Promise<any> {
+    try {
+      const deleted = await prisma.order_item.deleteMany({
+        where: {
+          productId: id,
+        },
+      });
+
+      return deleted
     } catch (error) {
       throw new Error(`Failed to create order item: ${error.message}`);
     }
