@@ -61,11 +61,20 @@ export class ProductController {
 
     const findOrderItem = await this.orderRepository.getByProductId(productId);
 
-    if (findOrderItem.status != "Chegou") {
-      res
-        .status(404)
-        .send({ error: "Produto esta vinculado a um ou mais pedidos" });
-      return;
+    if (!findOrderItem) {
+      const product: Product | null = await this.repository.update(
+        productId,
+        productInterface
+      );
+      res.code(200).send(product);
+    } else {
+      if (findOrderItem.status != "Chegou") {
+        res
+          .status(404)
+          .send({ error: "Produto esta vinculado a um ou mais pedidos" });
+        return;
+      }
+
     }
 
     const product: Product | null = await this.repository.update(
