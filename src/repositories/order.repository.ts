@@ -90,6 +90,70 @@ export class OrderRepository {
     return ordersWithPendingItems;
   }
 
+  async findOrderPrefeitura(): Promise<any> {
+    const productPrefeitura = await prisma.product.findMany({
+      where: {
+        originCityHall: true,
+      },
+    });
+
+    const orders = await prisma.order.findMany({
+      include: {
+        order_items: {
+          where: {
+            productId: {
+              in: productPrefeitura.map((product) => product.id),
+            },
+          },
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    // Filtra apenas os pedidos que têm pelo menos um item associado com originCityHall true
+    const filteredOrders = orders.filter((order) => {
+      return order.order_items.some(
+        (item) => item.product.originCityHall === true
+      );
+    });
+
+    return filteredOrders;
+  }
+
+  async findOrderNotPrefeitura(): Promise<any> {
+    const productNotPrefeitura = await prisma.product.findMany({
+      where: {
+        originCityHall: false,
+      },
+    });
+
+    const orders = await prisma.order.findMany({
+      include: {
+        order_items: {
+          where: {
+            productId: {
+              in: productNotPrefeitura.map((product) => product.id),
+            },
+          },
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    // Filtra apenas os pedidos que têm pelo menos um item associado com originCityHall true
+    const filteredOrders = orders.filter((order) => {
+      return order.order_items.some(
+        (item) => item.product.originCityHall === false
+      );
+    });
+
+    return filteredOrders;
+  }
+
   async getId(id: number): Promise<Order[]> {
     return prisma.order.findMany({
       where: { id },
@@ -179,7 +243,7 @@ export class OrderRepository {
         },
       });
 
-      return deleted
+      return deleted;
     } catch (error) {
       throw new Error(`Failed to create order item: ${error.message}`);
     }

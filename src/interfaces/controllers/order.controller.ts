@@ -56,6 +56,24 @@ export class OrderController {
     }
   };
 
+  findPrefeitura: RequestHandler = async (req, res) => {
+    try {
+      const orders: Order[] = await this.repository.findOrderPrefeitura();
+      res.send(orders);
+    } catch (error) {
+      res.status(500).send({ error: "Internal server error" });
+    }
+  };
+
+  findNotPrefeitura: RequestHandler = async (req, res) => {
+    try {
+      const orders: Order[] = await this.repository.findOrderNotPrefeitura();
+      res.send(orders);
+    } catch (error) {
+      res.status(500).send({ error: "Internal server error" });
+    }
+  };
+
   orderWithItems: RequestHandler = async (req, res) => {
     try {
       res.send(await this.repository.orderWithItems());
