@@ -213,8 +213,8 @@ export class OrderController {
               `Produto com ID ${orderItemData.productId} não encontrado`
             );
           }
-          
-          if(orderItemData.quantityInStock < 0 || orderItemData.newQuantity < 0){
+
+          if (orderItemData.quantityInStock < 0 || orderItemData.newQuantity < 0) {
             throw new Error(
               `A quantidade não pode ser negativa `
             );
@@ -271,9 +271,56 @@ export class OrderController {
       }
 
       await this.repository.updateOrder(orderItemId, {
-        status: "Chegou",
+        status: "Chegou"
       });
 
+      const updatedProduct = await this.repositoryProduct.update(product.id, {
+        id: product.id,
+        quantity: getOrderItem[0].quantityInStock + getOrderItem[0].newQuantity,
+        name: product.name,
+        categoryId: product.categoryId,
+        measureId: product.measureId,
+        purchase_allowed: product.purchase_allowed,
+        originCityHall: product.originCityHall,
+        location: product.location,
+      });
+      res.send({ message: "Pedido atualizado com sucesso", updatedProduct });
+    } catch (error) {
+      res.status(500).send({ message: error.message, error: error });
+    }
+  };
+
+  updateProductCityHallIfArrived: RequestHandler = async (req, res) => {
+    try {
+      const params = req.params as { id: string };
+      const { order_items } = req.body as { order_items: Order_item[] };
+      
+      if (typeof params.id !== "string") {
+        res.status(400).send({ error: "Invalid id" });
+        return;
+      }
+
+      const orderItemId = Number(params.id);
+
+      await this.repository.updateOrder(orderItemId, {
+        status: "Chegou",
+        newQuantity: order_items[0].newQuantity
+      });
+
+      const getOrderItem = await this.repository.getIdOrderItems(orderItemId);
+
+      const productId = getOrderItem[0].productId;
+
+      const product = await this.repositoryProduct.getById(productId);
+
+      if (!product) {
+        throw new Error(
+          `Produto com ID ${getOrderItem[0].productId} não encontrado`
+        );
+      }
+
+
+   
       const updatedProduct = await this.repositoryProduct.update(product.id, {
         id: product.id,
         quantity: getOrderItem[0].quantityInStock + getOrderItem[0].newQuantity,

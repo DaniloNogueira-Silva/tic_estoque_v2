@@ -116,10 +116,7 @@ export class OrderRepository {
     });
   }
 
-  async updateOrder(
-    id: number,
-    data: Partial<Order_item>
-  ): Promise<Order_item | null> {
+  async updateOrder(id: number, data: Partial<Order_item>): Promise<Order_item | null> {
     if (isNaN(id)) {
       throw new Error("Invalid ID provided");
     }
