@@ -35,6 +35,26 @@ const orderRouter = (
     }
   });
 
+  server.get("/prefeitura", async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await orderController.findPrefeitura(req, reply);
+      done();
+    } catch (error) {
+      console.log(error);
+      reply.status(500).send({ error: "Não foi possível recuperar os pedidos" });
+    }
+  });
+
+  server.get("/not/prefeitura", async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await orderController.findNotPrefeitura(req, reply);
+      done();
+    } catch (error) {
+      console.log(error);
+      reply.status(500).send({ error: "Não foi possível recuperar os pedidos" });
+    }
+  });
+
   server.get("/show/orders", async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       await orderController.orderWithItems(req, reply);
