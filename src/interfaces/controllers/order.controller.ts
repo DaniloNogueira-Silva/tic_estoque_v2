@@ -337,8 +337,6 @@ export class OrderController {
         );
       }
 
-
-   
       const updatedProduct = await this.repositoryProduct.update(product.id, {
         id: product.id,
         quantity: getOrderItem[0].quantityInStock + getOrderItem[0].newQuantity,
