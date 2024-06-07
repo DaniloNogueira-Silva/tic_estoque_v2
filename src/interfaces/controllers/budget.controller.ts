@@ -211,6 +211,7 @@ export class BudgetController {
         let totalA = 0
         let totalB = 0
         let totalC = 0
+        let resultado
 
         budgetPrices.forEach((price, index) => {
           const dataPrice = {
@@ -253,6 +254,17 @@ export class BudgetController {
 
         });
 
+        if(totalA > totalB && totalA > totalC){
+          resultado = "A"
+        }
+
+        if(totalB > totalA && totalB > totalC){
+          resultado = "B"
+        }
+
+        if(totalC > totalB && totalC > totalA){
+          resultado = "C"
+        }
 
         texto +=
           `
@@ -268,7 +280,7 @@ export class BudgetController {
               <th  style="border: 1px solid black; padding: 8px; text-align: center;"> III- OBSERVAÇÕES/JUSTIFICATIVAS </th>
             </tr>
             <tr>
-              <td style="border: 1px solid black; padding: 8px; text-align: center;"> Realizado Orçamento nas três empresas a Proponente (A), (B) e (C). Optamos pela Prononente (A)
+              <td style="border: 1px solid black; padding: 8px; text-align: center;"> Realizado Orçamento nas três empresas a Proponente (A), (B) e (C). Optamos pela Prononente ${resultado}
                 por apresentar o menor valor.
               </td>
             </tr>
