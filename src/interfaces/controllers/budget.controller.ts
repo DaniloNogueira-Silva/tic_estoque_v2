@@ -254,15 +254,15 @@ export class BudgetController {
 
         });
 
-        if(totalA > totalB && totalA > totalC){
+        if(totalA < totalB && totalA < totalC){
           resultado = "A"
         }
 
-        if(totalB > totalA && totalB > totalC){
+        if(totalB < totalA && totalB < totalC){
           resultado = "B"
         }
 
-        if(totalC > totalB && totalC > totalA){
+        if(totalC < totalB && totalC < totalA){
           resultado = "C"
         }
 
