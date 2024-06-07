@@ -130,15 +130,10 @@ export class BudgetController {
         const imageBase64 = fs.readFileSync(path.resolve(imagePath), 'base64');
 
         let texto = `
-            <p style="margin-right: 0px"> <img src="data:image/jpeg;base64,${imageBase64}" alt="Logo da creche"> </p>
-            <h4 style="color: gray; text-align: center; margin-top: 50px "> NV SOCIEDADE SOLIDÁRIA </h4>
-            <p style="color: gray; text-align: center "> Gestora do CCI Nossa Senhora da Conceição </p>
-            <p style="color: gray; text-align: center "> CNPJ n. 05.166.687/0002-34 </p>
-            <p style="font-weight: bold; text-align: center ">CONSOLIDAÇÃO DE PESQUISAS DE PREÇOS</p>
 
-            <p  style=" margin-left: 50px ">ORGÃO CONCESSOR: Prefeitura Municipal de Franca </p>
-            <p  style=" margin-left: 50px ">ENTIDADE CONVENIADA: NV Sociedade Solidária (CCI Municipal Nossa senhora da Conceição)</p>
-            <p  style=" margin-left: 50px ">EXERCÍCIO: 2023</p>
+            <h4 style="color: gray; text-align: center; margin-top: 50px "> ESTOQUE ADMIN </h4>
+            <p style="font-weight: bold; text-align: center ">CONSOLIDAÇÃO DE PESQUISAS DE PREÇOS</p>
+            <p  style=" margin-left: 50px ">EXERCÍCIO: 2024</p>
             <table style="border-collapse: collapse; width: 90%; margin-left: auto; margin-right: auto ">
               <tr>
                 <th colspan="2" style="border: 1px solid black; padding: 8px; text-align: center;"
@@ -254,15 +249,15 @@ export class BudgetController {
 
         });
 
-        if(totalA < totalB && totalA < totalC){
+        if (totalA < totalB && totalA < totalC) {
           resultado = "A"
         }
 
-        if(totalB < totalA && totalB < totalC){
+        if (totalB < totalA && totalB < totalC) {
           resultado = "B"
         }
 
-        if(totalC < totalB && totalC < totalA){
+        if (totalC < totalB && totalC < totalA) {
           resultado = "C"
         }
 
