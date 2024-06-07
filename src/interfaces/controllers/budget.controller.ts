@@ -126,14 +126,10 @@ export class BudgetController {
           year: "numeric",
         }).format(date);
 
-        const imagePath = 'image/creche.jpg';
-        const imageBase64 = fs.readFileSync(path.resolve(imagePath), 'base64');
-
         let texto = `
 
-            <h4 style="color: gray; text-align: center; margin-top: 50px "> ESTOQUE ADMIN </h4>
+            <h4 style="color: gray; text-align: center; margin-top: 20px "> ESTOQUE ADMIN </h4>
             <p style="font-weight: bold; text-align: center ">CONSOLIDAÇÃO DE PESQUISAS DE PREÇOS</p>
-            <p  style=" margin-left: 50px ">EXERCÍCIO: 2024</p>
             <table style="border-collapse: collapse; width: 90%; margin-left: auto; margin-right: auto ">
               <tr>
                 <th colspan="2" style="border: 1px solid black; padding: 8px; text-align: center;"
@@ -168,7 +164,6 @@ export class BudgetController {
                   Razão Social: ${dataCompany.razaoSocial}<br> CNPJ: ${dataCompany.cnpj}<br> Telefone: ${dataCompany.telefone}
                 </td>
               </tr>
-  
           `
         });
 
@@ -217,8 +212,6 @@ export class BudgetController {
             valorC: price.valorC,
           };
 
-
-
           texto += `
             <tr>
               <td style="border: 1px solid black; padding: 8px; text-align: center;">
@@ -245,7 +238,6 @@ export class BudgetController {
           totalA += dataPrice.unidade * dataPrice.valorA
           totalB += dataPrice.unidade * dataPrice.valorB
           totalC += dataPrice.unidade * dataPrice.valorC
-
 
         });
 
