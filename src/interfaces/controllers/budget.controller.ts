@@ -118,7 +118,7 @@ export class BudgetController {
         };
 
 
-        const data = dataBudget.createdAt// Exemplo de data do campo createdAt
+        const data = dataBudget.createdAt
         const date = new Date(data);
         const formattedDate = new Intl.DateTimeFormat("pt-BR", {
           day: "numeric",
@@ -279,34 +279,7 @@ export class BudgetController {
           <p style="margin-left: 50px ; "> Nome do Responsável: ${budget.responsible_name} - R.G:  ${budget.rg} - CPF:  ${budget.cpf} </p>
           <p style="margin-left: 50px ; "> Assinatura: ______________________________________________________________________ </p>
         `
-
-        const createPdf = () => {
-          return new Promise<void>((resolve, reject) => {
-            pdf.create(texto, {}).toFile(`pdfs/${budget.name}.pdf`, (err) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
-            });
-          });
-        };
-
-        // Agora você pode usar 'await' aqui
-        await createPdf();
-
-        const pdfPath = path.resolve(`pdfs/${budget.name}.pdf`);
-
-        // Define cabeçalhos para induzir o download do arquivo
-        res.header('Content-disposition', `attachment; filename=${budget.name}.pdf`);
-        res.header('Content-type', 'application/pdf');
-        res.header('Content-Transfer-Encoding', 'binary');
-
-        // Lê o conteúdo do arquivo e envia diretamente como resposta
-        const fileContent = await fs.promises.readFile(pdfPath);
-        res.send(fileContent);
-
-        await fs.promises.unlink(pdfPath);
+        res.send(texto);
       };
     } catch (error) {
       console.log(error);
