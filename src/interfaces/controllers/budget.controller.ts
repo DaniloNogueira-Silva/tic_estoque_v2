@@ -106,7 +106,7 @@ export class BudgetController {
     try {
       const id: number = parseInt((req.params as { id: string }).id);
       const budget: Budget = await this.repository.budgetDetails(id);
-
+      console.log('budget', budget);
 
       if (budget) {
         const dataBudget = {
@@ -126,10 +126,19 @@ export class BudgetController {
           year: "numeric",
         }).format(date);
 
-        let texto = `
+        const imagePath = 'image/creche.jpg';
+        const imageBase64 = fs.readFileSync(path.resolve(imagePath), 'base64');
 
-            <h4 style="color: gray; text-align: center; margin-top: 20px "> ESTOQUE ADMIN </h4>
+        let texto = `
+            <p style="margin-right: 0px"> <img src="data:image/jpeg;base64,${imageBase64}" alt="Logo da creche"> </p>
+            <h4 style="color: gray; text-align: center; margin-top: 50px "> NV SOCIEDADE SOLIDÁRIA </h4>
+            <p style="color: gray; text-align: center "> Gestora do CCI Nossa Senhora da Conceição </p>
+            <p style="color: gray; text-align: center "> CNPJ n. 05.166.687/0002-34 </p>
             <p style="font-weight: bold; text-align: center ">CONSOLIDAÇÃO DE PESQUISAS DE PREÇOS</p>
+
+            <p  style=" margin-left: 50px ">ORGÃO CONCESSOR: Prefeitura Municipal de Franca </p>
+            <p  style=" margin-left: 50px ">ENTIDADE CONVENIADA: NV Sociedade Solidária (CCI Municipal Nossa senhora da Conceição)</p>
+            <p  style=" margin-left: 50px ">EXERCÍCIO: 2023</p>
             <table style="border-collapse: collapse; width: 90%; margin-left: auto; margin-right: auto ">
               <tr>
                 <th colspan="2" style="border: 1px solid black; padding: 8px; text-align: center;"
@@ -141,7 +150,7 @@ export class BudgetController {
 
 
         const budgetCompanies: Budget_company[] = await this.repository.findCompaniesByBudgetId(budget.id);
-
+        console.log('budgetCompanies', budgetCompanies);
         const budgetPrices: Budget_product[] = await this.repository.findProductsByBudgetId(budget.id);
 
 
@@ -239,17 +248,18 @@ export class BudgetController {
           totalB += dataPrice.unidade * dataPrice.valorB
           totalC += dataPrice.unidade * dataPrice.valorC
 
+
         });
 
-        if (totalA < totalB && totalA < totalC) {
+        if(totalA < totalB && totalA < totalC){
           resultado = "A"
         }
 
-        if (totalB < totalA && totalB < totalC) {
+        if(totalB < totalA && totalB < totalC){
           resultado = "B"
         }
 
-        if (totalC < totalB && totalC < totalA) {
+        if(totalC < totalB && totalC < totalA){
           resultado = "C"
         }
 
